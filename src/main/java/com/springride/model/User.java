@@ -3,7 +3,9 @@ package com.springride.model;
 
 import com.springride.model.enums.Role;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Builder;
 
 import org.springframework.security.core.GrantedAuthority;
