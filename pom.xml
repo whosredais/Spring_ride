@@ -73,10 +73,11 @@
 
         <!-- Lombok -->
     <dependency>
-    <groupId>org.projectlombok</groupId>
-    <artifactId>lombok</artifactId> <!-- ajoute la version explicite -->
-    <scope>provided</scope>
-</dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.40</version>
+        <scope>provided</scope>
+    </dependency>
 
 
         <!-- DevTools -->
@@ -111,7 +112,7 @@
             <path>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.18.26</version>
+                <version>1.18.40</version>
             </path>
         </annotationProcessorPaths>
                     <release>${java.version}</release>
