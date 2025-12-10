@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Recherche de trajets</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 py-8">
+
+        <!-- Search Bar Compact -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+            <form action="/search" method="get" class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="flex-1 w-full">
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Départ</label>
+                    <input type="text" name="departure" placeholder="Ex: Paris" th:value="${param.departure}"
+                        class="w-full border-gray-200 rounded-lg focus:ring-spring focus:border-spring bg-gray-50">
+                </div>
+                <div class="flex-1 w-full">
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Arrivée</label>
+                    <input type="text" name="arrival" placeholder="Ex: Lyon" th:value="${param.arrival}"
+                        class="w-full border-gray-200 rounded-lg focus:ring-spring focus:border-spring bg-gray-50">
+                </div>
+                <div class="w-full md:w-48">
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Date</label>
+                    <input type="date"
+                        class="w-full border-gray-200 rounded-lg focus:ring-spring focus:border-spring bg-gray-50">
+                </div>
+                <button type="submit"
+                    class="w-full md:w-auto bg-spring text-white font-bold py-2.5 px-6 rounded-lg hover:bg-green-600 transition h-[42px]">
+                    Rechercher
+                </button>
+            </form>
+        </div>
+
+        <h1 class="text-2xl font-bold mb-6 text-night">Trajets disponibles</h1>
+
+        <div th:if="${#lists.isEmpty(trips)}" class="text-center py-20 bg-white rounded-xl shadow-sm">
+            <p class="text-gray-400 text-lg">Aucun trajet trouvé pour cette recherche.</p>
+            <a href="/publish" th:if="${session.userMode == 'DRIVER'}"
+                class="text-spring font-medium hover:underline mt-2 inline-block">Proposer ce trajet ?</a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div th:each="trip : ${trips}"
+                class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition group">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex flex-col">
+                            <span class="text-2xl font-bold text-night"
+                                th:text="${#temporals.format(trip.departureDateTime, 'HH:mm')}">18:00</span>
+                            <span class="text-sm text-gray-500" th:text="${trip.departureCity}">Paris</span>
+                        </div>
+                        <div class="text-gray-300 text-xl">→</div>
+                        <div class="flex flex-col text-right">
+                            <!-- Mock arrival time for now -->
+                            <span class="text-2xl font-bold text-night"
+                                th:text="${#temporals.format(trip.departureDateTime.plusHours(2), 'HH:mm')}">20:00</span>
+                            <span class="text-sm text-gray-500" th:text="${trip.arrivalCity}">Lyon</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-50">
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold text-gray-600">
+                                C</div>
+                            <span class="text-sm font-medium text-gray-700">Conducteur</span>
+                            <span class="text-xs text-yellow-500 font-bold">★ 4.8</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-2xl font-bold text-spring" th:text="${trip.pricePerSeat} + ' €'">25
+                                €</span>
+                        </div>
+                    </div>
+                </div>
+                <a th:href="@{/trips/{id}(id=${trip.id})}"
+                    class="block w-full bg-gray-50 hover:bg-spring hover:text-white text-center py-3 text-sm font-bold text-gray-600 transition">
+                    Voir détails
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

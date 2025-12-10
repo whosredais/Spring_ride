@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Mon Tableau de Bord - Spring Ride</title>
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <div th:replace="~{layout :: nav}"></div>
+
+    <div class="max-w-7xl mx-auto px-4 py-8 flex-grow">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 flex flex-col md:flex-row items-center gap-8">
+            <div class="w-24 h-24 bg-night text-white rounded-full flex items-center justify-center text-4xl font-bold">
+                <span th:text="${#strings.substring(dashboard.userProfile.firstname,0,1)}">U</span>
+            </div>
+            <div class="text-center md:text-left flex-grow">
+                <h1 class="text-3xl font-bold text-night mb-2">
+                    Bonjour, <span th:text="${dashboard.userProfile.firstname}">Utilisateur</span> !
+                </h1>
+                <div class="flex items-center justify-center md:justify-start gap-4 text-gray-600">
+                    <span class="flex items-center gap-1">
+                        ★ <span class="font-bold" th:text="${dashboard.userProfile.averageRating}">0.0</span>/5
+                    </span>
+                    <span>•</span>
+                    <span th:text="${dashboard.userProfile.reviewCount} + ' avis'">0 avis</span>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <div class="text-center px-6 border-r border-gray-200">
+                    <div class="text-2xl font-bold text-spring" th:text="${dashboard.totalTripsAsDriver}">0</div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Conducteur</div>
+                </div>
+                <div class="text-center px-6">
+                    <div class="text-2xl font-bold text-spring" th:text="${dashboard.totalTripsAsPassenger}">0</div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Passager</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Section Conducteur -->
+            <div th:if="${session.userMode == 'DRIVER'}" class="mb-12">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-spring" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Mes Trajets Publiés
+                </h2>
+
+                <div th:if="${#lists.isEmpty(dashboard.recentTripsPublished)}"
+                    class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
+                    <p class="text-gray-500">Vous n'avez publié aucun trajet récemment.</p>
+                    <a href="/publish" class="text-spring font-medium hover:underline mt-2 inline-block">Publier un
+                        trajet</a>
+                </div>
+
+                <div th:unless="${#lists.isEmpty(dashboard.recentTripsPublished)}"
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Trip Card (Loop) -->
+                    <div th:each="trip : ${dashboard.recentTripsPublished}"
+                        class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="text-sm font-semibold text-spring" th:text="${trip.status}">PRÉVU</span>
+                                <h3 class="text-lg font-bold text-night mt-1">
+                                    <span th:text="${trip.departureCity}">Paris</span> → <span
+                                        th:text="${trip.arrivalCity}">Lyon</span>
+                                </h3>
+                            </div>
+                            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full"
+                                th:text="${#temporals.format(trip.departureDateTime, 'dd/MM HH:mm')}">12/12 18:00</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
+                            <a href="#" class="text-sm text-gray-500 hover:text-night font-medium">Voir détails</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Passager -->
+            <div th:if="${session.userMode == 'PASSENGER'}" class="mb-12">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-spring" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    Mes Réservations
+                </h2>
+
+                <div th:if="${#lists.isEmpty(dashboard.recentReservationsRequest)}"
+                    class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
+                    <p class="text-gray-500">Aucune réservation en cours.</p>
+                    <a href="/search" class="text-spring font-medium hover:underline mt-2 inline-block">Rechercher un
+                        trajet</a>
+                </div>
+
+                <div th:unless="${#lists.isEmpty(dashboard.recentReservationsRequest)}"
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div th:each="res : ${dashboard.recentReservationsRequest}"
+                        class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="text-sm font-semibold text-blue-500"
+                                    th:text="${res.status}">CONFIRMÉ</span>
+                                <h3 class="text-lg font-bold text-night mt-1">
+                                    <span th:text="${res.departureCity}">Paris</span> → <span
+                                        th:text="${res.arrivalCity}">Lyon</span>
+                                </h3>
+                            </div>
+                            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full"
+                                th:text="${#temporals.format(res.departureDateTime, 'dd/MM HH:mm')}">12/12 18:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}"></div>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        spring: '#00D084',
+                        night: '#0F172A',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

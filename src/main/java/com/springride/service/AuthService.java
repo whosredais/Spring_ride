@@ -24,11 +24,11 @@ public class AuthService {
 
     public String register(RegisterRequest request) {
         User user = User.builder()
-                .firstname(request.firstname())
-                .lastname(request.lastname())
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .phone(request.phone())
+                .firstname(request.getFirstname())
+                .lastname(request.getLastname())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .phone(request.getPhone())
                 .roles(Set.of(Role.PASSAGER, Role.CONDUCTEUR))
                 .build();
         userRepository.save(user);
@@ -37,9 +37,8 @@ public class AuthService {
 
     public String login(LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
-        );
-        User user = userRepository.findByEmail(request.email()).orElseThrow();
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        User user = userRepository.findByEmail(request.getUsername()).orElseThrow();
         return jwtService.generateToken(user);
     }
 }

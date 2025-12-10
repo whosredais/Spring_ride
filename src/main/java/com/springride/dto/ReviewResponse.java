@@ -9,12 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
+public class ReviewResponse {
     private Long id;
-    private String firstname;
-    private String lastname;
-    private String email;
-    private String phone;
-    private double averageRating;
-    private int reviewCount;
+    private int rating;
+    private String comment;
+    private String reviewerName;
+    private Long tripId;
 }

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Recherche - Spring Ride</title>
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <div th:replace="~{layout :: nav}"></div>
+
+    <div class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow">
+        <h1 class="text-3xl font-bold text-night mb-8">Trouvez votre trajet</h1>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Filters Sidebar -->
+            <div class="w-full lg:w-1/4">
+                <div class="bg-white p-6 rounded-xl shadow-sm sticky top-24">
+                    <h3 class="font-bold text-lg mb-4">Filtres</h3>
+                    <form th:action="@{/search}" method="get">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Prix max</label>
+                            <input type="range" name="maxPrice" min="0" max="1000"
+                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-spring">
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>0€</span>
+                                <span>1000€</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Heure de départ</label>
+                            <input type="time" name="time"
+                                class="w-full border-gray-300 rounded-lg focus:ring-spring focus:border-spring">
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" name="animal" class="rounded text-spring focus:ring-spring">
+                                <span class="text-sm text-gray-700">Animaux acceptés</span>
+                            </label>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full bg-night text-white font-bold py-2 rounded-lg hover:bg-gray-800 transition">
+                            Filtrer
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results List -->
+            <div class="w-full lg:w-3/4 space-y-4">
+                <!-- Trip Card Loop -->
+                <div th:each="trip : ${trips}"
+                    class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition flex flex-col sm:flex-row justify-between items-center group">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-4 mb-2">
+                            <div class="font-bold text-2xl text-night"
+                                th:text="${#temporals.format(trip.departureDateTime, 'HH:mm')}">08:00</div>
+                            <div class="flex-1 h-0.5 bg-gray-200 relative mx-4">
+                                <div
+                                    class="absolute -top-1.5 left-0 w-3 h-3 rounded-full border-2 border-gray-300 bg-white">
+                                </div>
+                                <div
+                                    class="absolute -top-1.5 right-0 w-3 h-3 rounded-full border-2 border-gray-300 bg-gray-300">
+                                </div>
+                            </div>
+                            <div class="font-bold text-2xl text-gray-400">--:--</div>
+                            <!-- Arrivée non dispo dans DTO simple, à ajouter si besoin -->
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-500 mb-4">
+                            <span th:text="${trip.departureCity}">Paris</span>
+                            <span th:text="${trip.arrivalCity}">Lyon</span>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold text-gray-600">
+                                <span th:text="${#strings.substring(trip.driverName,0,1)}">A</span>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700" th:text="${trip.driverName}">Amira</span>
+                            <span
+                                class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                ★ <span th:text="${trip.driverRating}">4.8</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 sm:mt-0 sm:ml-8 text-right flex flex-col items-end">
+                        <span class="block text-3xl font-bold text-spring mb-1" th:text="${trip.pricePerSeat} + ' €'">25
+                            €</span>
+                        <span class="text-xs text-gray-500 mb-4">par place</span>
+                        <a href="#"
+                            class="bg-spring text-white font-bold px-6 py-2 rounded-lg hover:bg-green-500 transition shadow-md">
+                            Réserver
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${trips == null or trips.empty}" class="text-center py-12">
+                    <p class="text-gray-500 text-lg">Aucun trajet trouvé pour cette recherche.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}"></div>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        spring: '#00D084',
+                        night: '#0F172A',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

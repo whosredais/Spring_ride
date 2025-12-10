@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Publier un trajet</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-3xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8 text-night">Publier un nouveau trajet</h1>
+
+        <div th:if="${#lists.isEmpty(vehicles)}"
+            class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 rounded-r-lg">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        Vous devez ajouter un véhicule avant de publier un trajet.
+                        <a href="/driver/vehicles/add" class="font-medium underline hover:text-yellow-600">Ajouter un
+                            véhicule</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(vehicles)}" class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+            <form th:action="@{/driver/publish}" th:object="${tripRequest}" method="post" class="space-y-6">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Départ -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Ville de départ</label>
+                        <input type="text" th:field="*{departureCity}"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
+                            placeholder="Ex: Paris" required>
+                    </div>
+
+                    <!-- Arrivée -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Ville d'arrivée</label>
+                        <input type="text" th:field="*{arrivalCity}"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
+                            placeholder="Ex: Lyon" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Date -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date et Heure</label>
+                        <input type="datetime-local" th:field="*{departureDateTime}"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring" required>
+                    </div>
+
+                    <!-- Places et Prix -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Places</label>
+                            <input type="number" th:field="*{availableSeats}" min="1" max="8"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
+                                value="3" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Prix (€)</label>
+                            <input type="number" th:field="*{pricePerSeat}" min="0" step="0.5"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
+                                placeholder="25.00" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Véhicule Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Véhicule</label>
+                    <select th:field="*{vehicleId}"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring" required>
+                        <option value="" disabled selected>Choisir un véhicule...</option>
+                        <option th:each="vehicle : ${vehicles}" th:value="${vehicle.id}"
+                            th:text="${vehicle.brand} + ' ' + ${vehicle.model} + ' (' + ${vehicle.licensePlate} + ')'">
+                            Peugeot 208 (AB-123-CD)
+                        </option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1 flex justify-between">
+                        <span>Sélectionnez le véhicule pour ce trajet.</span>
+                        <a href="/driver/vehicles/add" class="text-spring hover:underline">Ajouter un nouveau
+                            véhicule</a>
+                    </p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description / Précisions</label>
+                    <textarea th:field="*{description}" rows="3"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
+                        placeholder="Ex: Je ne fume pas, pas d'animaux..."></textarea>
+                </div>
+
+                <!-- Bouton -->
+                <button type="submit"
+                    class="w-full bg-spring text-white font-bold py-3 rounded-lg hover:bg-green-600 transition shadow-md">
+                    Publier le trajet
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

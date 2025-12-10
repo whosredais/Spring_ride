@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Publier un trajet</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-3xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">Publier un nouveau trajet</h1>
+
+        <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+            <form th:action="@{/publish}" th:object="${tripRequest}" method="post" class="space-y-6">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Départ -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Ville de départ</label>
+                        <input type="text" th:field="*{departureCity}"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
+                            placeholder="Ex: Paris" required>
+                    </div>
+
+                    <!-- Arrivée -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Ville d'arrivée</label>
+                        <input type="text" th:field="*{arrivalCity}"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
+                            placeholder="Ex: Lyon" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Date -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date et Heure</label>
+                        <input type="datetime-local" th:field="*{departureDateTime}"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring" required>
+                    </div>
+
+                    <!-- Places et Prix -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Places</label>
+                            <input type="number" th:field="*{availableSeats}" min="1" max="8"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
+                                value="3" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Prix (€)</label>
+                            <input type="number" th:field="*{pricePerSeat}" min="0" step="0.5"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
+                                placeholder="25.00" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Véhicule (Temporaire: Input texte simple ou ID caché si gestion véhicules avancée plus tard) -->
+                <!-- Pour simplifier, on suppose que l'utilisateur a un véhicule par défaut ou on demande l'ID. 
+                     Idéalement il faudrait une liste déroulante des véhicules du user. 
+                     Ici, on va hardcoder un champ pour l'ID véhicule temporairement ou le laisser masquer si géré auto.
+                     Pour l'instant, on met un champ "ID Véhicule" manuel pour éviter que ça plante, 
+                     mais la vraie solution est d'injecter la liste des véhicules. -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ID Véhicule (Temporaire)</label>
+                    <input type="number" th:field="*{vehicleId}"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
+                        placeholder="Entrez l'ID de votre véhicule (ex: 1)" required>
+                    <p class="text-xs text-gray-500 mt-1">Note: Dans la version finale, ce sera une liste déroulante de
+                        vos véhicules.</p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description / Précisions</label>
+                    <textarea th:field="*{description}" rows="3"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
+                        placeholder="Ex: Je ne fume pas, pas d'animaux..."></textarea>
+                </div>
+
+                <!-- Bouton -->
+                <button type="submit"
+                    class="w-full bg-spring text-white font-bold py-3 rounded-lg hover:bg-green-600 transition shadow-md">
+                    Publier le trajet
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <meta charset="UTF-8">
+    <title layout:title-pattern="$CONTENT_TITLE - Spring Ride">Spring Ride Connect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        spring: '#00D084',
+                        night: '#0F172A',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-night min-h-screen flex flex-col">
+
+    <!-- Insert Header Fragment -->
+    <div th:replace="~{fragments/layout-fragments :: header}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <div layout:fragment="content"></div>
+    </main>
+
+    <!-- Insert Footer Fragment -->
+    <div th:replace="~{fragments/layout-fragments :: footer}"></div>
+
+</body>
+
+</html>

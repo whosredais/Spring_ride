@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Tableau de bord Conducteur</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 py-8">
+
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-night">Mon Tableau de bord <span class="text-spring">Conducteur</span>
+            </h1>
+            <a href="/driver/publish"
+                class="bg-night text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-800 transition shadow-lg">
+                + Publier un trajet
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="text-gray-500 text-sm mb-1 uppercase font-bold tracking-wide">Trajets Publiés</div>
+                <div class="text-4xl font-bold text-night" th:text="${dashboard.totalTripsAsDriver}">12</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="text-gray-500 text-sm mb-1 uppercase font-bold tracking-wide">Note Moyenne</div>
+                <div class="text-4xl font-bold text-spring" th:text="${dashboard.userProfile.averageRating}">4.9</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="text-gray-500 text-sm mb-1 uppercase font-bold tracking-wide">Revenus (Est.)</div>
+                <div class="text-4xl font-bold text-blue-600">150 €</div>
+            </div>
+        </div>
+
+        <h2 class="text-xl font-bold mb-4">Mes trajets récents</h2>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Trajet</th>
+                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Date</th>
+                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Statut</th>
+                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr th:each="trip : ${dashboard.recentTripsPublished}" class="hover:bg-gray-50 transition">
+                        <td class="p-4">
+                            <div class="font-bold text-night"
+                                th:text="${trip.departureCity} + ' → ' + ${trip.arrivalCity}">Paris → Lyon</div>
+                        </td>
+                        <td class="p-4 text-gray-600"
+                            th:text="${#temporals.format(trip.departureDateTime, 'dd/MM HH:mm')}">12/12 18:00</td>
+                        <td class="p-4">
+                            <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-bold"
+                                th:text="${trip.status}">ACTIVE</span>
+                        </td>
+                        <td class="p-4">
+                            <a href="#" class="text-spring font-medium hover:underline">Gérer</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(dashboard.recentTripsPublished)}">
+                        <td colspan="4" class="p-8 text-center text-gray-400">Aucun trajet récent.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

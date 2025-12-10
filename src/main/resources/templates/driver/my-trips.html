@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Mes Trajets - Conducteur</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-night mb-8">Gérer mes trajets</h1>
+
+        <div class="grid grid-cols-1 gap-6">
+            <div th:each="trip : ${trips}"
+                class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold text-night"
+                        th:text="${trip.departureCity} + ' → ' + ${trip.arrivalCity}">Paris → Lyon</h3>
+                    <p class="text-gray-500"
+                        th:text="${#temporals.format(trip.departureDateTime, 'dd MMMM yyyy à HH:mm')}">14 Janvier 2025
+                    </p>
+                    <div class="mt-2 flex gap-2">
+                        <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">3 places restantes</span>
+                        <span class="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-md font-bold"
+                            th:text="${trip.pricePerSeat} + ' €'">25 €</span>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button class="text-gray-400 hover:text-spring">Modifier</button>
+                    <button class="text-red-400 hover:text-red-600">Annuler</button>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(trips)}" class="text-center py-12 bg-white rounded-xl">
+                <p class="text-gray-400 mb-4">Vous n'avez aucun trajet actif.</p>
+                <a href="/driver/publish" class="text-spring font-bold hover:underline">Publier un trajet maintenant</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

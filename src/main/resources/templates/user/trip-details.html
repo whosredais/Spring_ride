@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Détails du trajet</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-4xl mx-auto px-4 py-8">
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+            <!-- Header -->
+            <div class="bg-night text-white p-8">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h1 class="text-3xl font-bold mb-2">
+                            <span th:text="${trip.departureCity}">Paris</span>
+                            <span class="text-spring mx-2">➔</span>
+                            <span th:text="${trip.arrivalCity}">Lyon</span>
+                        </h1>
+                        <p class="text-gray-400 text-lg"
+                            th:text="${#temporals.format(trip.departureDateTime, 'EEEE d MMMM à HH:mm')}">Lundi 12
+                            Décembre à 18:00</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="block text-4xl font-bold text-spring" th:text="${trip.pricePerSeat} + ' €'">25
+                            €</span>
+                        <span class="text-sm text-gray-400">par place</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3">
+                <!-- Main Info -->
+                <div class="p-8 md:col-span-2 space-y-8">
+                    <!-- Steps -->
+                    <div class="relative pl-8 border-l-2 border-gray-200 space-y-8">
+                        <div class="relative">
+                            <span
+                                class="absolute -left-[39px] bg-white border-4 border-spring w-5 h-5 rounded-full"></span>
+                            <h3 class="font-bold text-lg text-night" th:text="${trip.departureCity}">Paris</h3>
+                            <p class="text-gray-500 text-sm">Départ le <span
+                                    th:text="${#temporals.format(trip.departureDateTime, 'dd/MM à HH:mm')}"></span></p>
+                        </div>
+                        <div class="relative">
+                            <span
+                                class="absolute -left-[39px] bg-white border-4 border-night w-5 h-5 rounded-full"></span>
+                            <h3 class="font-bold text-lg text-night" th:text="${trip.arrivalCity}">Lyon</h3>
+                            <p class="text-gray-500 text-sm">Arrivée estimée (2h30)</p>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-100">
+
+                    <!-- Description -->
+                    <div th:if="${trip.description}">
+                        <h3 class="font-bold text-lg mb-2 text-night">Informations du conducteur</h3>
+                        <p class="text-gray-600 bg-gray-50 p-4 rounded-lg italic border-l-4 border-gray-300">
+                            "<span th:text="${trip.description}">Description...</span>"
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Sidebar (Booking) -->
+                <div class="bg-gray-50 p-8 border-l border-gray-100">
+                    <!-- Driver Info -->
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xl font-bold text-gray-600">
+                            C
+                        </div>
+                        <div>
+                            <p class="font-bold text-night">Conducteur</p>
+                            <p class="text-sm text-gray-500">★ 4.8/5 • 12 avis</p>
+                        </div>
+                    </div>
+
+                    <!-- Car Info -->
+                    <div class="mb-8" th:if="${trip.vehicle}">
+                        <p class="text-sm font-bold text-gray-500 uppercase mb-2">Véhicule</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">🚗</span>
+                            <div>
+                                <p class="font-bold text-night"
+                                    th:text="${trip.vehicle.brand} + ' ' + ${trip.vehicle.model}">Peugeot 208</p>
+                                <p class="text-xs text-gray-500" th:text="${trip.vehicle.color}">Gris</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Form -->
+                    <div th:if="${trip.availableSeats > 0}">
+                        <form th:action="@{'/trips/' + ${trip.id} + '/book'}" method="post"
+                            th:object="${reservationRequest}">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Nombre de places</label>
+                            <select th:field="*{seatsRequested}"
+                                class="w-full px-4 py-2 border rounded-lg mb-4 focus:ring-spring focus:border-spring">
+                                <option th:each="i : ${#numbers.sequence(1, trip.availableSeats)}" th:value="${i}"
+                                    th:text="${i} + ' place(s)'"></option>
+                            </select>
+
+                            <div class="flex justify-between items-center mb-6 text-sm">
+                                <span class="text-gray-600">Total</span>
+                                <span class="font-bold text-xl text-night" id="totalPrice">-- €</span>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full bg-spring text-white font-bold py-3 rounded-lg hover:bg-green-600 transition shadow-md transform hover:-translate-y-0.5">
+                                Réserver
+                            </button>
+                        </form>
+                    </div>
+                    <div th:unless="${trip.availableSeats > 0}"
+                        class="bg-red-50 text-red-500 p-4 rounded-lg text-center font-bold">
+                        Complet
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

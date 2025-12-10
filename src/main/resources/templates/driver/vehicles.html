@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Mes Véhicules</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-night">Mes Véhicules</h1>
+            <a href="/driver/vehicles/add"
+                class="bg-night text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-800 transition shadow-lg">
+                + Ajouter un véhicule
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div th:each="vehicle : ${vehicles}"
+                class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative group">
+                <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition">
+                    <button class="text-red-400 hover:text-red-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-2xl">
+                    🚗
+                </div>
+                <h3 class="text-xl font-bold text-night" th:text="${vehicle.brand} + ' ' + ${vehicle.model}">Peugeot 208
+                </h3>
+                <p class="text-gray-500 font-mono text-sm mb-2" th:text="${vehicle.licensePlate}">AB-123-CD</p>
+                <div class="flex gap-2 mt-4">
+                    <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg"
+                        th:text="${vehicle.color}">Gris</span>
+                    <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg"
+                        th:text="${vehicle.seats} + ' places'">4 places</span>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(vehicles)}"
+                class="col-span-full text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
+                <p class="text-gray-400 mb-4">Vous n'avez pas encore ajouté de véhicule.</p>
+                <a href="/driver/vehicles/add" class="text-spring font-bold hover:underline">Ajouter mon premier
+                    véhicule</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

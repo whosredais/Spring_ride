@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
+public class VehicleResponse {
     private Long id;
-    private String firstname;
-    private String lastname;
-    private String email;
-    private String phone;
-    private double averageRating;
-    private int reviewCount;
+    private String brand;
+    private String model;
+    private String color;
+    private String licensePlate;
+    private int seats;
+    private Long ownerId;
 }

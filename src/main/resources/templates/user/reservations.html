@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Mes Réservations</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-night mb-8">Mes Réservations</h1>
+
+        <div th:if="${#lists.isEmpty(reservations)}"
+            class="text-center py-20 bg-white rounded-xl shadow-sm border border-gray-100">
+            <p class="text-gray-400 text-lg mb-4">Vous n'avez effectué aucune réservation.</p>
+            <a href="/search" class="bg-spring text-white px-6 py-3 rounded-lg font-bold hover:bg-green-600 transition">
+                Rechercher un trajet
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div th:each="res : ${reservations}"
+                class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between h-full">
+
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <div class="text-sm text-gray-500 mb-1"
+                            th:text="${#temporals.format(res.departureDateTime, 'EEEE d MMMM à HH:mm')}">Lundi 12 Oct
+                        </div>
+                        <h3 class="text-xl font-bold text-night">
+                            <span th:text="${res.departureCity}">Paris</span> <span class="text-gray-300">➔</span> <span
+                                th:text="${res.arrivalCity}">Lyon</span>
+                        </h3>
+                    </div>
+                    <span
+                        class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full uppercase tracking-wide"
+                        th:text="${res.status}">CONFIRMÉe</span>
+                </div>
+
+                <div class="border-t border-gray-50 pt-4 mt-auto">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">🚗</span>
+                            <span class="text-sm font-medium text-gray-600">Conducteur</span>
+                        </div>
+                        <a href="#" class="text-spring font-medium hover:underline text-sm">Voir détails</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <nav th:fragment="header" class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/" class="flex-shrink-0 flex items-center gap-2">
+                        <div class="w-8 h-8 bg-spring rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">S</span>
+                        </div>
+                        <span class="font-bold text-xl tracking-tight text-night">SpringRide</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-6">
+
+                    <!-- USER MENU -->
+                    <th:block th:if="${session.userMode == 'PASSENGER' or session.userMode == null}">
+                        <a href="/search" class="text-gray-600 hover:text-spring font-medium transition">Rechercher</a>
+                        <a th:if="${#authorization.expression('isAuthenticated()')}" href="/reservations"
+                            class="text-gray-600 hover:text-spring font-medium transition">Mes Réservations</a>
+                    </th:block>
+
+                    <!-- DRIVER MENU -->
+                    <th:block th:if="${session.userMode == 'DRIVER'}">
+                        <a href="/driver/dashboard"
+                            class="text-gray-600 hover:text-spring font-medium transition">Tableau de bord</a>
+                        <a href="/driver/my-trips" class="text-gray-600 hover:text-spring font-medium transition">Mes
+                            Trajets</a>
+                        <a href="/driver/vehicles" class="text-gray-600 hover:text-spring font-medium transition">Mes
+                            Véhicules</a>
+                        <a href="/driver/publish"
+                            class="bg-spring text-white px-4 py-2 rounded-lg font-bold hover:bg-green-600 transition shadow-sm">+
+                            Publier</a>
+                    </th:block>
+
+                    <!-- ADMIN MENU -->
+                    <th:block th:if="${session.userMode == 'ADMIN'}">
+                        <a href="/admin/dashboard" class="text-red-600 font-bold hover:text-red-700 transition">ADMIN
+                            DASHBOARD</a>
+                    </th:block>
+                </div>
+
+                <!-- Auth & Profile -->
+                <div class="flex items-center space-x-4">
+                    <th:block th:if="${!#authorization.expression('isAuthenticated()')}">
+                        <a href="/login" class="text-gray-600 hover:text-night font-medium">Connexion</a>
+                        <a href="/register"
+                            class="bg-spring hover:bg-green-500 text-white px-4 py-2 rounded-lg font-medium transition shadow-md">Inscription</a>
+                    </th:block>
+
+                    <th:block th:if="${#authorization.expression('isAuthenticated()')}">
+                        <!-- Mode Switcher -->
+                        <a href="/switch-mode"
+                            th:class="${session.userMode == 'DRIVER'} ? 'bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-blue-700 transition mr-2' : 'bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-gray-300 transition mr-2'"
+                            th:text="${session.userMode == 'DRIVER'} ? 'Mode Conducteur' : 'Mode Passager'">
+                            Mode
+                        </a>
+
+                        <!-- Profile Dropdown (Simplified as link for now) -->
+                        <a href="/profile" class="flex items-center gap-2 text-gray-700 hover:text-spring font-medium">
+                            <div
+                                class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">
+                                <span th:text="${#authentication.name.substring(0,1)}">U</span>
+                            </div>
+                        </a>
+
+                        <form th:action="@{/logout}" method="post" class="inline">
+                            <button type="submit" class="text-gray-400 hover:text-red-500 text-sm font-medium ml-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                            </button>
+                        </form>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <footer th:fragment="footer" class="bg-night text-white mt-auto py-12">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <span class="font-bold text-xl mb-4 block">SpringRide</span>
+                <p class="text-gray-400 text-sm">
+                    La plateforme de covoiturage moderne.
+                </p>
+            </div>
+            <div>
+                <h3 class="font-bold mb-4">Liens</h3>
+                <ul class="text-gray-400 text-sm space-y-2">
+                    <li><a href="#" class="hover:text-spring">Aide</a></li>
+                    <li><a href="#" class="hover:text-spring">Contact</a></li>
+                </ul>
+            </div>
+            <div class="text-sm text-gray-500">
+                &copy; 2025 Spring Ride Connect.
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

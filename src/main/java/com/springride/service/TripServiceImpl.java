@@ -1,0 +1,106 @@
+package com.springride.service;
+
+import com.springride.dto.TripRequest;
+import com.springride.dto.TripResponse;
+import com.springride.exception.BadRequestException;
+import com.springride.exception.ResourceNotFoundException;
+import com.springride.model.Trip;
+import com.springride.model.User;
+import com.springride.model.Vehicle;
+import com.springride.model.enums.TripStatus;
+import com.springride.repository.TripRepository;
+import com.springride.repository.VehicleRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class TripServiceImpl implements TripService {
+
+    private final TripRepository tripRepository;
+    private final VehicleRepository vehicleRepository;
+
+    @Override
+    @Transactional
+    public TripResponse createTrip(TripRequest request, User driver) {
+        Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
+                .orElseThrow(() -> new ResourceNotFoundException("Véhicule introuvable"));
+
+        if (!vehicle.getOwner().getId().equals(driver.getId())) {
+            throw new BadRequestException("Vous ne pouvez pas utiliser un véhicule qui ne vous appartient pas");
+        }
+
+        Trip trip = Trip.builder()
+                .departureCity(request.getDepartureCity())
+                .arrivalCity(request.getArrivalCity())
+                .departureDateTime(request.getDepartureDateTime())
+                .availableSeats(request.getAvailableSeats())
+                .pricePerSeat(request.getPricePerSeat())
+                .description(request.getDescription())
+                .status(TripStatus.PLANIFIE)
+                .driver(driver)
+                .vehicle(vehicle)
+                .build();
+
+        return mapToResponse(tripRepository.save(trip));
+    }
+
+    @Override
+    public TripResponse getTripById(Long id) {
+        return mapToResponse(tripRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Trajet non trouvé")));
+    }
+
+    @Override
+    public List<TripResponse> searchTrips(String departure, String arrival, LocalDateTime date, BigDecimal minPrice,
+            BigDecimal maxPrice) {
+        return tripRepository.searchTrips(departure, arrival, date, minPrice, maxPrice).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TripResponse> getDriverTrips(Long driverId) {
+        return tripRepository.findByDriverId(driverId).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void cancelTrip(Long tripId, Long driverId) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trajet non trouvé"));
+
+        if (!trip.getDriver().getId().equals(driverId)) {
+            throw new BadRequestException("Vous n'êtes pas le conducteur de ce trajet");
+        }
+
+        trip.setStatus(TripStatus.ANNULE);
+        tripRepository.save(trip);
+    }
+
+    private TripResponse mapToResponse(Trip trip) {
+        return TripResponse.builder()
+                .id(trip.getId())
+                .departureCity(trip.getDepartureCity())
+                .arrivalCity(trip.getArrivalCity())
+                .departureDateTime(trip.getDepartureDateTime())
+                .availableSeats(trip.getAvailableSeats())
+                .pricePerSeat(trip.getPricePerSeat())
+                .description(trip.getDescription())
+                .status(trip.getStatus())
+                .driverId(trip.getDriver().getId())
+                .driverName(trip.getDriver().getFirstname() + " " + trip.getDriver().getLastname())
+                .driverRating(trip.getDriver().getAverageRating())
+                .carModel(trip.getVehicle().getBrand() + " " + trip.getVehicle().getModel())
+                .carColor(trip.getVehicle().getColor())
+                .build();
+    }
+}
