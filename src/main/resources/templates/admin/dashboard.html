@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Administration</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-night mb-8">Tableau de bord <span class="text-red-600">ADMIN</span></h1>
+
+        <!-- Stats Mockups -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="text-gray-500 text-sm mb-1 uppercase font-bold tracking-wide">Utilisateurs</div>
+                <div class="text-4xl font-bold text-night">124</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="text-gray-500 text-sm mb-1 uppercase font-bold tracking-wide">Trajets</div>
+                <div class="text-4xl font-bold text-night">45</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="text-gray-500 text-sm mb-1 uppercase font-bold tracking-wide">Réservations</div>
+                <div class="text-4xl font-bold text-night">89</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="text-gray-500 text-sm mb-1 uppercase font-bold tracking-wide">Signalements</div>
+                <div class="text-4xl font-bold text-red-500">2</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Users List Mock -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-xl font-bold mb-4">Derniers utilisateurs inscrits</h2>
+                <ul class="space-y-4">
+                    <li class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-600">
+                                A</div>
+                            <div>
+                                <p class="font-bold text-night">Alice Martin</p>
+                                <p class="text-xs text-gray-500">alice@example.com</p>
+                            </div>
+                        </div>
+                        <span class="text-sm text-gray-400">Il y a 2h</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-600">
+                                B</div>
+                            <div>
+                                <p class="font-bold text-night">Bob Dupuis</p>
+                                <p class="text-xs text-gray-500">bob@example.com</p>
+                            </div>
+                        </div>
+                        <span class="text-sm text-gray-400">Hier</span>
+                    </li>
+                </ul>
+                <button
+                    class="w-full mt-6 py-2 text-center text-sm font-bold text-gray-500 hover:text-night border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                    Voir tous les utilisateurs
+                </button>
+            </div>
+
+            <!-- Actions -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-xl font-bold mb-4">Actions rapides</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button
+                            class="p-4 bg-gray-50 rounded-lg text-left hover:bg-gray-100 transition ring-1 ring-gray-200">
+                            <span class="block font-bold text-night">Gérer les Trajets</span>
+                            <span class="text-xs text-gray-500">Supprimer, modérer...</span>
+                        </button>
+                        <button
+                            class="p-4 bg-gray-50 rounded-lg text-left hover:bg-gray-100 transition ring-1 ring-gray-200">
+                            <span class="block font-bold text-night">Gérer les Avis</span>
+                            <span class="text-xs text-gray-500">Modérer les commentaires</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -21,11 +21,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         if (roles.contains("ROLE_ADMIN")) {
             request.getSession().setAttribute("userMode", "ADMIN");
-            response.sendRedirect("/dashboard");
+            response.sendRedirect("/admin/dashboard");
         } else if (roles.contains("ROLE_CONDUCTEUR")) {
-            request.getSession().setAttribute("userMode", "DRIVER"); // Default for drivers? or let them choose? Let's
-                                                                     // say DRIVER.
-            response.sendRedirect("/dashboard");
+            request.getSession().setAttribute("userMode", "DRIVER");
+            response.sendRedirect("/driver/dashboard");
         } else {
             // ROLE_PASSAGER
             request.getSession().setAttribute("userMode", "PASSENGER");
