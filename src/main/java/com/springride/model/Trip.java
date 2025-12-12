@@ -37,10 +37,14 @@ public class Trip {
     @Column(nullable = false, precision = 8, scale = 2)
     private BigDecimal pricePerSeat; // Prix par place (ex: 120.00 DH)
 
+    @Column(nullable = false)
+    private Integer estimatedDuration; // Durée estimée en minutes
+
     private String description; // "Je passe par Salé", "Musique autorisée", etc.
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "VARCHAR(20)")
     private TripStatus status = TripStatus.PLANIFIE;
 
     // Qui conduit ?
@@ -51,4 +55,7 @@ public class Trip {
     // Quelle voiture ?
     @ManyToOne(fetch = FetchType.LAZY)
     private Vehicle vehicle;
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private java.util.List<Reservation> reservations;
 }

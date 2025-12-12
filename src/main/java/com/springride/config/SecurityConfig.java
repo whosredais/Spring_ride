@@ -25,7 +25,7 @@ public class SecurityConfig {
                 http
                                 .csrf(csrf -> csrf.disable()) // Désactivé pour simplifier le dev, à activer en prod
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/", "/login", "/register", "/search", "/css/**",
+                                                .requestMatchers("/", "/login", "/register", "/css/**",
                                                                 "/js/**", "/images/**",
                                                                 "/error", "/h2-console/**")
                                                 .permitAll()

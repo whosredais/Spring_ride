@@ -7,4 +7,6 @@ public interface UserService {
     UserResponse getUserProfile(Long userId);
 
     DashboardResponse getUserDashboard(Long userId);
+
+    void updateProfile(Long userId, com.springride.dto.ProfileRequest request);
 }

@@ -23,8 +23,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             request.getSession().setAttribute("userMode", "ADMIN");
             response.sendRedirect("/admin/dashboard");
         } else if (roles.contains("ROLE_CONDUCTEUR")) {
-            request.getSession().setAttribute("userMode", "DRIVER");
-            response.sendRedirect("/driver/dashboard");
+            // Par défaut, le conducteur commence en mode passager
+            request.getSession().setAttribute("userMode", "PASSENGER");
+            response.sendRedirect("/search");
         } else {
             // ROLE_PASSAGER
             request.getSession().setAttribute("userMode", "PASSENGER");

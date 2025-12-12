@@ -12,26 +12,36 @@ import java.util.List;
 
 public interface TripRepository extends JpaRepository<Trip, Long> {
 
-    @Query("SELECT t FROM Trip t WHERE " +
-            "(:departure IS NULL OR t.departureCity LIKE %:departure%) AND " +
-            "(:arrival IS NULL OR t.arrivalCity LIKE %:arrival%) AND " +
-            "(:date IS NULL OR t.departureDateTime >= :date) AND " +
-            "(:minPrice IS NULL OR t.pricePerSeat >= :minPrice) AND " +
-            "(:maxPrice IS NULL OR t.pricePerSeat <= :maxPrice) AND " +
-            "t.status = 'PLANIFIE' AND t.availableSeats > 0")
-    List<Trip> searchTrips(
-            @Param("departure") String departure,
-            @Param("arrival") String arrival,
-            @Param("date") LocalDateTime date,
-            @Param("minPrice") BigDecimal minPrice,
-            @Param("maxPrice") BigDecimal maxPrice);
+        @Query("SELECT t FROM Trip t WHERE " +
+                        "(:departure IS NULL OR LOWER(t.departureCity) LIKE LOWER(CONCAT('%', :departure, '%'))) AND " +
+                        "(:arrival IS NULL OR LOWER(t.arrivalCity) LIKE LOWER(CONCAT('%', :arrival, '%'))) AND " +
+                        "t.departureDateTime > :now AND " +
+                        "t.status = 'PLANIFIE' AND " +
+                        "t.availableSeats > 0 AND " +
+                        "(:date IS NULL OR CAST(t.departureDateTime AS LocalDate) = CAST(:date AS LocalDate)) AND " +
+                        "(:minPrice IS NULL OR t.pricePerSeat >= :minPrice) AND " +
+                        "(:maxPrice IS NULL OR t.pricePerSeat <= :maxPrice) " +
+                        "ORDER BY t.departureDateTime ASC")
+        List<Trip> searchTrips(
+                        @Param("departure") String departure,
+                        @Param("arrival") String arrival,
+                        @Param("date") LocalDateTime date,
+                        @Param("minPrice") BigDecimal minPrice,
+                        @Param("maxPrice") BigDecimal maxPrice,
+                        @Param("now") LocalDateTime now);
 
-    List<Trip> findByDriverId(Long driverId);
+        @Query("SELECT t FROM Trip t WHERE t.departureDateTime < :now AND t.status IN ('PLANIFIE', 'COMPLET')")
+        List<Trip> findExpiredTrips(@Param("now") LocalDateTime now);
 
-    // Recherche simple par villes (on améliorera plus tard)
-    List<Trip> findByDepartureCityContainingIgnoreCaseAndArrivalCityContainingIgnoreCase(
-            String departure, String arrival);
+        List<Trip> findByDriverId(Long driverId);
 
-    // Trajets futurs
-    List<Trip> findByDepartureDateTimeAfter(LocalDateTime now);
+        // Recherche simple par villes (on améliorera plus tard)
+        List<Trip> findByDepartureCityContainingIgnoreCaseAndArrivalCityContainingIgnoreCase(
+                        String departure, String arrival);
+
+        // Trajets futurs
+        List<Trip> findByDepartureDateTimeAfter(LocalDateTime now);
+
+        @Query("SELECT COUNT(DISTINCT t) FROM Trip t JOIN t.reservations r WHERE t.driver.id = :driverId")
+        Long countTripsWithReservations(@Param("driverId") Long driverId);
 }

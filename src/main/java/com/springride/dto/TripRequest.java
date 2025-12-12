@@ -37,6 +37,10 @@ public class TripRequest {
 
     private String description;
 
+    @NotNull(message = "La durée est obligatoire")
+    @Min(value = 15, message = "La durée minimale est de 15 minutes")
+    private Integer estimatedDuration;
+
     @NotNull(message = "ID du véhicule obligatoire")
     private Long vehicleId;
 }

@@ -29,4 +29,8 @@ public class ReservationResponse {
     // Passenger info (visible to driver)
     private Long passengerId;
     private String passengerName;
+
+    // Driver info (for reviews)
+    private Long driverId;
+    private String driverName;
 }

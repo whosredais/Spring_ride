@@ -29,6 +29,10 @@ public class TripServiceImpl implements TripService {
     @Override
     @Transactional
     public TripResponse createTrip(TripRequest request, User driver) {
+        if (request.getDepartureDateTime().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("La date du trajet doit être dans le futur");
+        }
+
         Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Véhicule introuvable"));
 
@@ -40,6 +44,7 @@ public class TripServiceImpl implements TripService {
                 .departureCity(request.getDepartureCity())
                 .arrivalCity(request.getArrivalCity())
                 .departureDateTime(request.getDepartureDateTime())
+                .estimatedDuration(request.getEstimatedDuration())
                 .availableSeats(request.getAvailableSeats())
                 .pricePerSeat(request.getPricePerSeat())
                 .description(request.getDescription())
@@ -60,7 +65,7 @@ public class TripServiceImpl implements TripService {
     @Override
     public List<TripResponse> searchTrips(String departure, String arrival, LocalDateTime date, BigDecimal minPrice,
             BigDecimal maxPrice) {
-        return tripRepository.searchTrips(departure, arrival, date, minPrice, maxPrice).stream()
+        return tripRepository.searchTrips(departure, arrival, date, minPrice, maxPrice, LocalDateTime.now()).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -82,8 +87,60 @@ public class TripServiceImpl implements TripService {
             throw new BadRequestException("Vous n'êtes pas le conducteur de ce trajet");
         }
 
+        // Annuler toutes les réservations associées
+        if (trip.getReservations() != null && !trip.getReservations().isEmpty()) {
+            trip.getReservations().forEach(reservation -> {
+                reservation.setStatus(com.springride.model.enums.ReservationStatus.ANNULEE);
+            });
+            // Les réservations seront sauvegardées automatiquement via cascade
+        }
+
         trip.setStatus(TripStatus.ANNULE);
         tripRepository.save(trip);
+    }
+
+    @Override
+    @Transactional
+    public TripResponse updateTrip(Long tripId, TripRequest request, Long driverId) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trajet non trouvé"));
+
+        if (!trip.getDriver().getId().equals(driverId)) {
+            throw new BadRequestException("Vous n'êtes pas le conducteur de ce trajet");
+        }
+
+        // Vérifier si des réservations existent (sauf annulées)
+        boolean hasActiveReservations = trip.getReservations() != null && trip.getReservations().stream()
+                .anyMatch(r -> r.getStatus() != com.springride.model.enums.ReservationStatus.ANNULEE
+                        && r.getStatus() != com.springride.model.enums.ReservationStatus.REFUSEE);
+
+        if (hasActiveReservations) {
+            throw new BadRequestException("Impossible de modifier le trajet car des réservations existent");
+        }
+
+        if (request.getDepartureDateTime().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("La date du trajet doit être dans le futur");
+        }
+
+        trip.setDepartureCity(request.getDepartureCity());
+        trip.setArrivalCity(request.getArrivalCity());
+        trip.setDepartureDateTime(request.getDepartureDateTime());
+        trip.setEstimatedDuration(request.getEstimatedDuration());
+        trip.setAvailableSeats(request.getAvailableSeats());
+        trip.setPricePerSeat(request.getPricePerSeat());
+        trip.setDescription(request.getDescription());
+
+        // Update vehicle if changed
+        if (request.getVehicleId() != null) {
+            Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Véhicule introuvable"));
+            if (!vehicle.getOwner().getId().equals(driverId)) {
+                throw new BadRequestException("Ce véhicule ne vous appartient pas");
+            }
+            trip.setVehicle(vehicle);
+        }
+
+        return mapToResponse(tripRepository.save(trip));
     }
 
     private TripResponse mapToResponse(Trip trip) {
@@ -92,6 +149,7 @@ public class TripServiceImpl implements TripService {
                 .departureCity(trip.getDepartureCity())
                 .arrivalCity(trip.getArrivalCity())
                 .departureDateTime(trip.getDepartureDateTime())
+                .estimatedDuration(trip.getEstimatedDuration())
                 .availableSeats(trip.getAvailableSeats())
                 .pricePerSeat(trip.getPricePerSeat())
                 .description(trip.getDescription())
@@ -101,6 +159,7 @@ public class TripServiceImpl implements TripService {
                 .driverRating(trip.getDriver().getAverageRating())
                 .carModel(trip.getVehicle().getBrand() + " " + trip.getVehicle().getModel())
                 .carColor(trip.getVehicle().getColor())
+                .driverTripsCount(tripRepository.countTripsWithReservations(trip.getDriver().getId()))
                 .build();
     }
 }

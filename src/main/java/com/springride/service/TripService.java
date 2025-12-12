@@ -19,4 +19,6 @@ public interface TripService {
     List<TripResponse> getDriverTrips(Long driverId);
 
     void cancelTrip(Long tripId, Long driverId);
+
+    TripResponse updateTrip(Long tripId, TripRequest request, Long driverId);
 }

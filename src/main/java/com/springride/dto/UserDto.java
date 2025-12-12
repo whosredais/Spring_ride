@@ -7,15 +7,14 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
+@AllArgsConstructor
+public class UserDto {
     private Long id;
     private String firstname;
     private String lastname;
     private String email;
     private String phone;
-    private String profilePicture;
-    private double averageRating;
-    private int reviewCount;
+    private Double averageRating;
+    private Integer reviewCount;
 }

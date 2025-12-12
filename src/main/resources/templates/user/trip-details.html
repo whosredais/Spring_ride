@@ -24,8 +24,8 @@
                             Décembre à 18:00</p>
                     </div>
                     <div class="text-right">
-                        <span class="block text-4xl font-bold text-spring" th:text="${trip.pricePerSeat} + ' €'">25
-                            €</span>
+                        <span class="block text-4xl font-bold text-spring" th:text="${trip.pricePerSeat} + ' DH'">25
+                            DH</span>
                         <span class="text-sm text-gray-400">par place</span>
                     </div>
                 </div>
@@ -39,14 +39,14 @@
                         <div class="relative">
                             <span
                                 class="absolute -left-[39px] bg-white border-4 border-spring w-5 h-5 rounded-full"></span>
-                            <h3 class="font-bold text-lg text-night" th:text="${trip.departureCity}">Paris</h3>
+                            <h3 class="font-bold text-lg text-night" th:text="${trip.departureCity}">Casablanca</h3>
                             <p class="text-gray-500 text-sm">Départ le <span
                                     th:text="${#temporals.format(trip.departureDateTime, 'dd/MM à HH:mm')}"></span></p>
                         </div>
                         <div class="relative">
                             <span
                                 class="absolute -left-[39px] bg-white border-4 border-night w-5 h-5 rounded-full"></span>
-                            <h3 class="font-bold text-lg text-night" th:text="${trip.arrivalCity}">Lyon</h3>
+                            <h3 class="font-bold text-lg text-night" th:text="${trip.arrivalCity}">Rabat</h3>
                             <p class="text-gray-500 text-sm">Arrivée estimée (2h30)</p>
                         </div>
                     </div>
@@ -68,23 +68,27 @@
                     <div class="flex items-center gap-3 mb-6">
                         <div
                             class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xl font-bold text-gray-600">
-                            C
+                            <span th:text="${#strings.substring(trip.driverName,0,1)}">C</span>
                         </div>
                         <div>
-                            <p class="font-bold text-night">Conducteur</p>
-                            <p class="text-sm text-gray-500">★ 4.8/5 • 12 avis</p>
+                            <p class="font-bold text-night" th:text="${trip.driverName}">Conducteur</p>
+                            <p class="text-sm text-gray-500">
+                                <span class="text-yellow-500 font-bold">★ <span
+                                        th:text="${trip.driverRating}">4.8</span>/5</span>
+                                <span>•</span>
+                                <span th:text="${trip.driverTripsCount} + ' trajets'">12 trajets</span>
+                            </p>
                         </div>
                     </div>
 
                     <!-- Car Info -->
-                    <div class="mb-8" th:if="${trip.vehicle}">
+                    <div class="mb-8" th:if="${trip.carModel != null}">
                         <p class="text-sm font-bold text-gray-500 uppercase mb-2">Véhicule</p>
                         <div class="flex items-center gap-2">
                             <span class="text-2xl">🚗</span>
                             <div>
-                                <p class="font-bold text-night"
-                                    th:text="${trip.vehicle.brand} + ' ' + ${trip.vehicle.model}">Peugeot 208</p>
-                                <p class="text-xs text-gray-500" th:text="${trip.vehicle.color}">Gris</p>
+                                <p class="font-bold text-night" th:text="${trip.carModel}">Peugeot 208</p>
+                                <p class="text-xs text-gray-500" th:text="${trip.carColor}">Gris</p>
                             </div>
                         </div>
                     </div>
@@ -94,7 +98,7 @@
                         <form th:action="@{'/trips/' + ${trip.id} + '/book'}" method="post"
                             th:object="${reservationRequest}">
                             <label class="block text-sm font-bold text-gray-700 mb-2">Nombre de places</label>
-                            <select th:field="*{seatsRequested}"
+                            <select th:field="*{seatsRequested}" id="seatsSelect" onchange="updateTotal()"
                                 class="w-full px-4 py-2 border rounded-lg mb-4 focus:ring-spring focus:border-spring">
                                 <option th:each="i : ${#numbers.sequence(1, trip.availableSeats)}" th:value="${i}"
                                     th:text="${i} + ' place(s)'"></option>
@@ -102,7 +106,7 @@
 
                             <div class="flex justify-between items-center mb-6 text-sm">
                                 <span class="text-gray-600">Total</span>
-                                <span class="font-bold text-xl text-night" id="totalPrice">-- €</span>
+                                <span class="font-bold text-xl text-night" id="totalPrice">-- DH</span>
                             </div>
 
                             <button type="submit"
@@ -111,11 +115,45 @@
                             </button>
                         </form>
                     </div>
+
+                    <script th:inline="javascript">
+                        function updateTotal() {
+                            const pricePerSeat = /*[[${trip.pricePerSeat}]]*/ 0;
+                            const seats = document.getElementById('seatsSelect').value;
+                            const total = pricePerSeat * seats;
+                            document.getElementById('totalPrice').innerText = total + ' DH';
+                        }
+                        // Initialize total
+                        document.addEventListener("DOMContentLoaded", function () {
+                            updateTotal();
+                        });
+                    </script>
                     <div th:unless="${trip.availableSeats > 0}"
                         class="bg-red-50 text-red-500 p-4 rounded-lg text-center font-bold">
                         Complet
                     </div>
 
+                </div>
+            </div>
+        </div>
+        <!-- Error Modal -->
+        <div th:if="${param.error != null}"
+            class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300">
+            <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 transition-transform duration-300">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Attention</h3>
+                    <p class="text-gray-500 mb-6" th:text="${param.error[0]}">Une erreur est survenue</p>
+                    <button
+                        onclick="this.closest('.fixed').remove(); window.history.replaceState(null, '', window.location.pathname);"
+                        class="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition transform hover:scale-[1.02]">
+                        Compris
+                    </button>
                 </div>
             </div>
         </div>

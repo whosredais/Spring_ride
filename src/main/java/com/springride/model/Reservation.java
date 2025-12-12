@@ -22,13 +22,16 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Builder.Default
     @Column(nullable = false)
     private int seatsRequested = 1; // Par défaut 1 place
 
+    @Builder.Default
     private LocalDateTime requestedAt = LocalDateTime.now(); // Date de la demande
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "VARCHAR(20)")
     private ReservationStatus status = ReservationStatus.DEMANDEE;
 
     // Qui demande ?

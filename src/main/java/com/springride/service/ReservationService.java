@@ -14,5 +14,9 @@ public interface ReservationService {
 
     List<ReservationResponse> getPassengerReservations(Long passengerId);
 
+    List<ReservationResponse> getUpcomingReservations(Long passengerId);
+
+    List<ReservationResponse> getReservationsToRate(Long passengerId);
+
     List<ReservationResponse> getDriverReservations(Long driverId); // Réservations reçues pour ses trajets
 }

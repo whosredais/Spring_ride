@@ -10,44 +10,208 @@
     <div layout:fragment="content" class="max-w-7xl mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-night mb-8">Mes Réservations</h1>
 
-        <div th:if="${#lists.isEmpty(reservations)}"
+        <!-- Success Message -->
+        <div th:if="${success}" class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-r-lg animate-fade-in">
+            <div class="flex items-center">
+                <svg class="h-5 w-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd" />
+                </svg>
+                <p class="text-green-700 font-medium" th:text="${success}">Succès</p>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div th:if="${error}" class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-lg animate-fade-in">
+            <div class="flex items-center">
+                <svg class="h-5 w-5 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clip-rule="evenodd" />
+                </svg>
+                <p class="text-red-700 font-medium" th:text="${error}">Erreur</p>
+            </div>
+        </div>
+
+        <!-- Section A Noter -->
+        <div th:if="${!#lists.isEmpty(reservationsToRate)}" class="mb-10">
+            <h2 class="text-xl font-bold text-spring mb-4 flex items-center gap-2">
+                <span>⭐</span> A noter
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div th:each="res : ${reservationsToRate}"
+                    class="bg-yellow-50 p-6 rounded-xl border border-yellow-100 relative group">
+                    <p class="text-sm text-gray-600 mb-2"
+                        th:text="${#temporals.format(res.departureDateTime, 'dd MMMM à HH:mm')}"></p>
+                    <h3 class="font-bold text-lg mb-1" th:text="${res.departureCity} + ' ➔ ' + ${res.arrivalCity}"></h3>
+                    <p class="text-sm text-gray-500 mb-4">Conducteur : <span class="font-medium"
+                            th:text="${res.driverName != null ? res.driverName : 'Inconnu'}">Nom</span></p>
+
+                    <button onclick="openReviewModal(this)" th:data-trip-id="${res.tripId}"
+                        th:data-driver-id="${res.driverId}"
+                        class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded-lg transition shadow-sm">
+                        Noter le conducteur
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Toutes mes réservations -->
+        <div th:if="${!#lists.isEmpty(allReservations)}" class="mb-10">
+            <h2 class="text-xl font-bold text-night mb-4">Toutes mes réservations</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div th:each="res : ${allReservations}"
+                    class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between h-full hover:shadow-md transition">
+
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1"
+                                th:text="${#temporals.format(res.departureDateTime, 'EEEE d MMMM à HH:mm')}">Date
+                            </div>
+                            <h3 class="text-xl font-bold text-night">
+                                <span th:text="${res.departureCity}">Casa</span> <span class="text-gray-300">➔</span>
+                                <span th:text="${res.arrivalCity}">Rabat</span>
+                            </h3>
+                            <p class="text-sm text-gray-500 mt-2">Conducteur : <span class="font-medium"
+                                    th:text="${res.driverName != null ? res.driverName : 'Inconnu'}">Nom</span></p>
+                            <p class="text-sm text-gray-600 mt-1"><span class="font-medium"
+                                    th:text="${res.seatsRequested}">1</span> place(s) - <span class="font-bold"
+                                    th:text="${res.totalPrice + ' MAD'}">50 MAD</span></p>
+                        </div>
+                        <span
+                            th:class="${'px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide ' + 
+                            (res.status.name() == 'CONFIRMEE' ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-600')}"
+                            th:text="${res.status.name() == 'CONFIRMEE' ? 'CONFIRMÉE' : 'ANNULÉE'}">STATUT</span>
+                    </div>
+
+                    <div class="border-t border-gray-50 pt-4 mt-auto">
+                        <div class="flex items-center justify-between">
+                            <a th:href="@{'/trips/' + ${res.tripId}}"
+                                class="text-spring font-medium hover:underline text-sm">Voir détails</a>
+                            <span class="text-xs text-gray-400"
+                                th:text="${'Réservé le ' + #temporals.format(res.requestedAt, 'dd/MM/yyyy')}">Date
+                                réservation</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section A venir (confirmées uniquement) -->
+        <div th:if="${!#lists.isEmpty(upcomingReservations)}" class="mb-10" style="display: none;">
+            <h2 class="text-xl font-bold text-night mb-4">A venir</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div th:each="res : ${upcomingReservations}"
+                    class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between h-full hover:shadow-md transition">
+
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1"
+                                th:text="${#temporals.format(res.departureDateTime, 'EEEE d MMMM à HH:mm')}">Date
+                            </div>
+                            <h3 class="text-xl font-bold text-night">
+                                <span th:text="${res.departureCity}">Casa</span> <span class="text-gray-300">➔</span>
+                                <span th:text="${res.arrivalCity}">Rabat</span>
+                            </h3>
+                        </div>
+                        <span
+                            class="px-3 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-full uppercase tracking-wide">CONFIRMÉE</span>
+                    </div>
+
+                    <div class="border-t border-gray-50 pt-4 mt-auto">
+                        <div class="flex items-center justify-between">
+                            <a th:href="@{'/trips/' + ${res.tripId}}"
+                                class="text-spring font-medium hover:underline text-sm">Voir détails</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${hasNoReservations}"
             class="text-center py-20 bg-white rounded-xl shadow-sm border border-gray-100">
-            <p class="text-gray-400 text-lg mb-4">Vous n'avez effectué aucune réservation.</p>
+            <p class="text-gray-400 text-lg mb-4">Vous n'avez effectué aucune réservation récente.</p>
             <a href="/search" class="bg-spring text-white px-6 py-3 rounded-lg font-bold hover:bg-green-600 transition">
                 Rechercher un trajet
             </a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div th:each="res : ${reservations}"
-                class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between h-full">
+        <!-- Review Modal -->
+        <div id="reviewModal"
+            class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all scale-100">
+                <h3 class="text-2xl font-bold text-night mb-4">Noter le trajet</h3>
+                <p class="text-gray-500 mb-6">Comment s'est passé votre voyage ?</p>
 
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <div class="text-sm text-gray-500 mb-1"
-                            th:text="${#temporals.format(res.departureDateTime, 'EEEE d MMMM à HH:mm')}">Lundi 12 Oct
-                        </div>
-                        <h3 class="text-xl font-bold text-night">
-                            <span th:text="${res.departureCity}">Paris</span> <span class="text-gray-300">➔</span> <span
-                                th:text="${res.arrivalCity}">Lyon</span>
-                        </h3>
-                    </div>
-                    <span
-                        class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full uppercase tracking-wide"
-                        th:text="${res.status}">CONFIRMÉe</span>
-                </div>
+                <form th:action="@{/reviews}" method="post" th:object="${newReview}">
+                    <input type="hidden" id="modalTripId" th:field="*{tripId}" />
+                    <!-- Assuming reviewedUserId is fetched backend side from trip or added to DTO. 
+                         Wait, ReviewRequest needs reviewedUserId.
+                         Currently ReservationResponse doesn't have driverId.
+                         I MUST update ReservationResponse to include driverId.
+                         For now I will use hidden input but I need to pass driverId.
+                         Let's assume backend finds driver from tripId.
+                         ReviewServiceImpl: addReview(request, user) -> tripRepository.findById(request.getTripId()) -> trip.getDriver()
+                         So request.reviewedUserId IS NOT NEEDED if logic infers it from Trip.
+                         Let's check ReviewServiceImpl.
+                         Step 537: 
+                            if (reviewer.getId().equals(request.getReviewedUserId())) ...
+                            User reviewedUser = userRepository.findById(request.getReviewedUserId())...
+                         It DOES require reviewedUserId.
+                         So I need to provide it.
+                         I must update ReservationResponse DTO.
+                    -->
+                    <input type="hidden" id="modalReviewedId" th:field="*{reviewedUserId}" />
 
-                <div class="border-t border-gray-50 pt-4 mt-auto">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="text-2xl">🚗</span>
-                            <span class="text-sm font-medium text-gray-600">Conducteur</span>
-                        </div>
-                        <a href="#" class="text-spring font-medium hover:underline text-sm">Voir détails</a>
+                    <div class="flex justify-center gap-2 mb-6" id="starContainer">
+                        <!-- Simple Star Rating JS will handle value -->
+                        <button type="button" onclick="setRating(1)"
+                            class="text-3xl text-gray-300 hover:text-yellow-400 transition">★</button>
+                        <button type="button" onclick="setRating(2)"
+                            class="text-3xl text-gray-300 hover:text-yellow-400 transition">★</button>
+                        <button type="button" onclick="setRating(3)"
+                            class="text-3xl text-gray-300 hover:text-yellow-400 transition">★</button>
+                        <button type="button" onclick="setRating(4)"
+                            class="text-3xl text-gray-300 hover:text-yellow-400 transition">★</button>
+                        <button type="button" onclick="setRating(5)"
+                            class="text-3xl text-gray-300 hover:text-yellow-400 transition">★</button>
                     </div>
-                </div>
+                    <input type="hidden" id="ratingValue" th:field="*{rating}" required />
+
+                    <textarea th:field="*{comment}" rows="3"
+                        class="w-full p-3 bg-gray-50 rounded-lg mb-6 border-none focus:ring-2 focus:ring-spring"
+                        placeholder="Laissez un commentaire..."></textarea>
+
+                    <div class="flex gap-4">
+                        <button type="button" onclick="document.getElementById('reviewModal').classList.add('hidden')"
+                            class="flex-1 py-3 text-gray-500 font-bold hover:bg-gray-50 rounded-lg transition">Annuler</button>
+                        <button type="submit"
+                            class="flex-1 py-3 bg-spring text-white font-bold rounded-lg hover:bg-green-600 transition shadow-lg">Envoyer</button>
+                    </div>
+                </form>
             </div>
         </div>
+
+        <script>
+            function openReviewModal(btn) {
+                document.getElementById('modalTripId').value = btn.getAttribute('data-trip-id');
+                // We need driver ID here.
+                // Assuming I will add driverId to DTO in next step.
+                document.getElementById('modalReviewedId').value = btn.getAttribute('data-driver-id');
+                document.getElementById('reviewModal').classList.remove('hidden');
+            }
+
+            function setRating(n) {
+                document.getElementById('ratingValue').value = n;
+                const stars = document.getElementById('starContainer').children;
+                for (let i = 0; i < 5; i++) {
+                    stars[i].classList.toggle('text-yellow-400', i < n);
+                    stars[i].classList.toggle('text-gray-300', i >= n);
+                }
+            }
+        </script>
     </div>
 </body>
 

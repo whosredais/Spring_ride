@@ -18,12 +18,28 @@
                     <h3 class="font-bold text-lg mb-4">Filtres</h3>
                     <form th:action="@{/search}" method="get">
                         <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Départ</label>
+                            <select name="departure"
+                                class="w-full bg-gray-200 border-transparent rounded-lg focus:ring-spring focus:border-spring p-2 text-sm">
+                                <option value="" selected>Toutes les villes</option>
+                                <option th:each="city : ${cities}" th:value="${city}" th:text="${city}">Ville</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Arrivée</label>
+                            <select name="arrival"
+                                class="w-full bg-gray-200 border-transparent rounded-lg focus:ring-spring focus:border-spring p-2 text-sm">
+                                <option value="" selected>Toutes les villes</option>
+                                <option th:each="city : ${cities}" th:value="${city}" th:text="${city}">Ville</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Prix max</label>
                             <input type="range" name="maxPrice" min="0" max="1000"
                                 class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-spring">
                             <div class="flex justify-between text-xs text-gray-500 mt-1">
-                                <span>0€</span>
-                                <span>1000€</span>
+                                <span>0 DH</span>
+                                <span>1000 DH</span>
                             </div>
                         </div>
 
@@ -69,8 +85,8 @@
                             <!-- Arrivée non dispo dans DTO simple, à ajouter si besoin -->
                         </div>
                         <div class="flex justify-between text-sm text-gray-500 mb-4">
-                            <span th:text="${trip.departureCity}">Paris</span>
-                            <span th:text="${trip.arrivalCity}">Lyon</span>
+                            <span th:text="${trip.departureCity}">Casablanca</span>
+                            <span th:text="${trip.arrivalCity}">Rabat</span>
                         </div>
 
                         <div class="flex items-center gap-3">
@@ -87,13 +103,95 @@
                     </div>
 
                     <div class="mt-4 sm:mt-0 sm:ml-8 text-right flex flex-col items-end">
-                        <span class="block text-3xl font-bold text-spring mb-1" th:text="${trip.pricePerSeat} + ' €'">25
-                            €</span>
+                        <span class="block text-3xl font-bold text-spring mb-1"
+                            th:text="${trip.pricePerSeat} + ' DH'">25
+                            DH</span>
                         <span class="text-xs text-gray-500 mb-4">par place</span>
-                        <a href="#"
-                            class="bg-spring text-white font-bold px-6 py-2 rounded-lg hover:bg-green-500 transition shadow-md">
-                            Réserver
-                        </a>
+                        <div class="flex flex-col gap-2 w-full">
+                            <button th:onclick="'openModal(' + ${trip.id} + ')'"
+                                class="bg-gray-100 text-gray-700 font-bold px-6 py-2 rounded-lg hover:bg-gray-200 transition shadow-sm w-full">
+                                Voir détails
+                            </button>
+                            <a th:href="@{'/trips/' + ${trip.id}}"
+                                class="bg-spring text-white font-bold px-6 py-2 rounded-lg hover:bg-green-500 transition shadow-md w-full text-center">
+                                Réserver
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Modal Structure (Hidden by default) -->
+                    <div th:id="'modal-' + ${trip.id}" class="fixed inset-0 z-50 hidden overflow-y-auto"
+                        aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                        <div
+                            class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                            <!-- Background overlay -->
+                            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
+                                th:onclick="'closeModal(' + ${trip.id} + ')'"></div>
+
+                            <span class="hidden sm:inline-block sm:align-middle sm:h-screen"
+                                aria-hidden="true">&#8203;</span>
+
+                            <div
+                                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                    <div class="sm:flex sm:items-start">
+                                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                            <h3 class="text-2xl font-bold text-gray-900 mb-4" id="modal-title">
+                                                Détails du Trajet
+                                            </h3>
+
+                                            <!-- Driver Info -->
+                                            <div class="flex items-center gap-4 mb-6 bg-gray-50 p-4 rounded-lg">
+                                                <div
+                                                    class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xl font-bold text-gray-600">
+                                                    <span th:text="${#strings.substring(trip.driverName,0,1)}">A</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-bold text-lg text-night"
+                                                        th:text="${trip.driverName}">Amira</p>
+                                                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                                                        <span class="text-yellow-500">★ <span
+                                                                th:text="${trip.driverRating}">4.8</span></span>
+                                                        <span>•</span>
+                                                        <span
+                                                            th:text="${trip.driverTripsCount} + ' trajets effectués'">12
+                                                            trajets</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <h4 class="font-bold text-gray-700">Description</h4>
+                                                    <p class="text-gray-600 text-sm italic border-l-2 border-spring pl-3 mt-1"
+                                                        th:text="${trip.description} ?: 'Aucune description fournie.'">
+                                                        Pas de description.
+                                                    </p>
+                                                </div>
+
+                                                <div>
+                                                    <h4 class="font-bold text-gray-700">Véhicule</h4>
+                                                    <p class="text-gray-600 text-sm"
+                                                        th:text="${trip.carModel} + ' (' + ${trip.carColor} + ')'">
+                                                        Peugeot 208 (Gris)</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                    <a th:href="@{'/trips/' + ${trip.id}}"
+                                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-spring text-base font-medium text-white hover:bg-green-600 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                                        Réserver ce trajet
+                                    </a>
+                                    <button type="button"
+                                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                        th:onclick="'closeModal(' + ${trip.id} + ')'">
+                                        Fermer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -108,6 +206,16 @@
     <div th:replace="~{layout :: footer}"></div>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        function openModal(tripId) {
+            document.getElementById('modal-' + tripId).classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(tripId) {
+            document.getElementById('modal-' + tripId).classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
         tailwind.config = {
             theme: {
                 extend: {

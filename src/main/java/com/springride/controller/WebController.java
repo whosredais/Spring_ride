@@ -16,6 +16,11 @@ public class WebController {
 
     private final AuthService authService;
 
+    @ModelAttribute("cities")
+    public java.util.List<String> cities() {
+        return com.springride.util.CityUtils.MOROCCAN_CITIES;
+    }
+
     @GetMapping("/")
     public String home(Model model) {
         return "index";

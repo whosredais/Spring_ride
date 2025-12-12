@@ -19,6 +19,7 @@ public class DashboardResponse {
     private int totalTripsAsDriver;
     private int totalTripsAsPassenger;
     private double averageRating;
+    private java.math.BigDecimal estimatedRevenue;
 
     // Listes (récentes)
     private List<TripResponse> recentTripsPublished;

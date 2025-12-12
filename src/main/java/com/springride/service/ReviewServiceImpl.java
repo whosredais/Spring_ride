@@ -31,8 +31,32 @@ public class ReviewServiceImpl implements ReviewService {
         Trip trip = tripRepository.findById(request.getTripId())
                 .orElseThrow(() -> new ResourceNotFoundException("Trajet non trouvé"));
 
+        // VALIDATION CRITIQUE: Vérifier que l'utilisateur noté est bien le conducteur
+        // du trajet
+        if (!trip.getDriver().getId().equals(request.getReviewedUserId())) {
+            throw new BadRequestException("Vous ne pouvez noter que le conducteur de ce trajet");
+        }
+
+        // Vérifier que le passager ne note pas lui-même
         if (reviewer.getId().equals(request.getReviewedUserId())) {
             throw new BadRequestException("Vous ne pouvez pas vous noter vous-même");
+        }
+
+        // Vérifier que le passager a bien réservé ce trajet
+        boolean hasReservation = trip.getReservations().stream()
+                .anyMatch(r -> r.getPassenger().getId().equals(reviewer.getId())
+                        && r.getStatus() == com.springride.model.enums.ReservationStatus.CONFIRMEE);
+
+        if (!hasReservation) {
+            throw new BadRequestException("Vous devez avoir réservé ce trajet pour noter le conducteur");
+        }
+
+        // Vérifier qu'un avis n'a pas déjà été laissé
+        boolean alreadyReviewed = reviewRepository.existsByTripIdAndReviewerId(
+                request.getTripId(), reviewer.getId());
+
+        if (alreadyReviewed) {
+            throw new BadRequestException("Vous avez déjà noté ce trajet");
         }
 
         User reviewedUser = userRepository.findById(request.getReviewedUserId())

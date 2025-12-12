@@ -36,14 +36,40 @@ public class ReservationServiceImpl implements ReservationService {
             throw new BadRequestException("Vous ne pouvez pas réserver votre propre trajet");
         }
 
+        if (reservationRepository.existsByTripIdAndPassengerId(trip.getId(), passenger.getId())) {
+            throw new BadRequestException("Vous avez déjà réservé ce trajet");
+        }
+
+        if (trip.getDepartureDateTime().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Ce trajet est déjà passé");
+        }
+
+        if (trip.getStatus() == com.springride.model.enums.TripStatus.ANNULE
+                || trip.getStatus() == com.springride.model.enums.TripStatus.EXPIRE
+                || trip.getStatus() == com.springride.model.enums.TripStatus.TERMINEE
+                || trip.getStatus() == com.springride.model.enums.TripStatus.COMPLET) {
+            throw new BadRequestException("Ce trajet n'est plus disponible à la réservation");
+        }
+
         if (trip.getAvailableSeats() < request.getSeatsRequested()) {
             throw new BadRequestException("Pas assez de places disponibles");
         }
 
+        // ACCEPTATION AUTOMATIQUE : Déduire les places immédiatement
+        trip.setAvailableSeats(trip.getAvailableSeats() - request.getSeatsRequested());
+
+        // Si plus de places, marquer le trajet comme COMPLET
+        if (trip.getAvailableSeats() == 0) {
+            trip.setStatus(com.springride.model.enums.TripStatus.COMPLET);
+        }
+
+        tripRepository.save(trip);
+
+        // Créer la réservation avec statut CONFIRMEE (acceptation automatique)
         Reservation reservation = Reservation.builder()
                 .seatsRequested(request.getSeatsRequested())
                 .requestedAt(LocalDateTime.now())
-                .status(ReservationStatus.DEMANDEE)
+                .status(ReservationStatus.CONFIRMEE) // Statut initial: CONFIRMEE (acceptation automatique)
                 .passenger(passenger)
                 .trip(trip)
                 .build();
@@ -59,47 +85,57 @@ public class ReservationServiceImpl implements ReservationService {
 
         Trip trip = reservation.getTrip();
 
-        // Logique d'autorisation et de transition d'état
-        if (newStatus == ReservationStatus.CONFIRMEE || newStatus == ReservationStatus.REFUSEE) {
-            // Seul le conducteur peut confirmer ou refuser
-            if (!trip.getDriver().getId().equals(currentUser.getId())) {
-                throw new BadRequestException("Seul le conducteur peut gérer cette réservation");
+        // ACCEPTATION AUTOMATIQUE : Seule l'annulation est gérée
+        if (newStatus == ReservationStatus.ANNULEE) {
+            // Le passager ou le conducteur peut annuler
+            boolean isPassenger = reservation.getPassenger().getId().equals(currentUser.getId());
+            boolean isDriver = trip.getDriver().getId().equals(currentUser.getId());
+
+            if (!isPassenger && !isDriver) {
+                throw new BadRequestException("Vous n'êtes pas autorisé à annuler cette réservation");
             }
 
-            if (reservation.getStatus() != ReservationStatus.DEMANDEE) {
-                throw new BadRequestException("Cette réservation a déjà été traitée");
+            // Vérifier que la réservation n'est pas déjà annulée
+            if (reservation.getStatus() == ReservationStatus.ANNULEE) {
+                throw new BadRequestException("Cette réservation est déjà annulée");
             }
 
-            if (newStatus == ReservationStatus.CONFIRMEE) {
-                if (trip.getAvailableSeats() < reservation.getSeatsRequested()) {
-                    throw new BadRequestException("Plus de places disponibles pour confirmer cette demande");
-                }
-                // Mise à jour des places
-                trip.setAvailableSeats(trip.getAvailableSeats() - reservation.getSeatsRequested());
-                tripRepository.save(trip);
-            }
-        } else if (newStatus == ReservationStatus.ANNULEE) {
-            // Le passager peut annuler sa demande
-            if (!reservation.getPassenger().getId().equals(currentUser.getId())) {
-                throw new BadRequestException("Seul le passager peut annuler cette réservation");
-            }
-
-            // Si la réservation était déjà confirmée, on doit rendre les places
+            // Remettre les places (car elles ont été déduites lors de la création)
             if (reservation.getStatus() == ReservationStatus.CONFIRMEE) {
                 trip.setAvailableSeats(trip.getAvailableSeats() + reservation.getSeatsRequested());
+
+                // Si le trajet était COMPLET, il redevient PLANIFIE car des places se libèrent
+                if (trip.getStatus() == com.springride.model.enums.TripStatus.COMPLET) {
+                    trip.setStatus(com.springride.model.enums.TripStatus.PLANIFIE);
+                }
                 tripRepository.save(trip);
             }
-        } else {
-            throw new BadRequestException("Transition de statut non gérée");
-        }
 
-        reservation.setStatus(newStatus);
-        return mapToResponse(reservationRepository.save(reservation));
+            reservation.setStatus(newStatus);
+            return mapToResponse(reservationRepository.save(reservation));
+        } else {
+            throw new BadRequestException(
+                    "Seule l'annulation est autorisée. Les réservations sont confirmées automatiquement.");
+        }
     }
 
     @Override
     public List<ReservationResponse> getPassengerReservations(Long passengerId) {
         return reservationRepository.findByPassengerId(passengerId).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReservationResponse> getUpcomingReservations(Long passengerId) {
+        return reservationRepository.findUpcomingReservations(passengerId).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReservationResponse> getReservationsToRate(Long passengerId) {
+        return reservationRepository.findReservationsToRate(passengerId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -126,6 +162,8 @@ public class ReservationServiceImpl implements ReservationService {
                 .departureDateTime(r.getTrip().getDepartureDateTime())
                 .passengerId(r.getPassenger().getId())
                 .passengerName(r.getPassenger().getFirstname() + " " + r.getPassenger().getLastname())
+                .driverId(r.getTrip().getDriver().getId())
+                .driverName(r.getTrip().getDriver().getFirstname() + " " + r.getTrip().getDriver().getLastname())
                 .build();
     }
 }

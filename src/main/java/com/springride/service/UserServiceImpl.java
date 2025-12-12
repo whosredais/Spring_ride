@@ -31,6 +31,7 @@ public class UserServiceImpl implements UserService {
                                 .lastname(user.getLastname())
                                 .email(user.getEmail())
                                 .phone(user.getPhone())
+                                .profilePicture(user.getProfilePicture())
                                 .averageRating(user.getAverageRating() != null ? user.getAverageRating() : 0.0)
                                 .reviewCount(user.getReviewCount() != null ? user.getReviewCount() : 0)
                                 .build();
@@ -67,8 +68,38 @@ public class UserServiceImpl implements UserService {
                                 .totalTripsAsDriver(myTrips.size())
                                 .totalTripsAsPassenger(myReservations.size())
                                 .averageRating(profile.getAverageRating())
+                                .estimatedRevenue(reservationRepository.calculateDriverRevenue(userId))
                                 .recentTripsPublished(myTrips)
                                 .recentReservationsRequest(myReservations)
                                 .build();
+        }
+
+        @Override
+        public void updateProfile(Long userId, ProfileRequest request) {
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+
+                user.setFirstname(request.getFirstname());
+                user.setLastname(request.getLastname());
+                user.setPhone(request.getPhone());
+
+                if (request.getProfilePicture() != null && !request.getProfilePicture().isEmpty()) {
+                        try {
+                                String fileName = System.currentTimeMillis() + "_"
+                                                + request.getProfilePicture().getOriginalFilename();
+                                java.nio.file.Path uploadPath = java.nio.file.Paths.get("uploads");
+                                if (!java.nio.file.Files.exists(uploadPath)) {
+                                        java.nio.file.Files.createDirectories(uploadPath);
+                                }
+                                java.nio.file.Files.copy(request.getProfilePicture().getInputStream(),
+                                                uploadPath.resolve(fileName),
+                                                java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                                user.setProfilePicture(fileName);
+                        } catch (java.io.IOException e) {
+                                throw new RuntimeException("Erreur lors de l'upload de l'image", e);
+                        }
+                }
+
+                userRepository.save(user);
         }
 }

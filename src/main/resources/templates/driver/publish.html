@@ -3,112 +3,215 @@
     layout:decorate="~{layout}">
 
 <head>
-    <title>Publier un trajet</title>
+    <title>Proposer un trajet - SpringRide</title>
 </head>
 
 <body>
-    <div layout:fragment="content" class="max-w-3xl mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-8 text-night">Publier un nouveau trajet</h1>
+    <div layout:fragment="content" class="max-w-4xl mx-auto px-4 py-12">
 
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-night mb-2">Proposer un covoiturage</h1>
+            <p class="text-gray-500">Partagez vos frais et rencontrez de nouvelles personnes.</p>
+        </div>
+
+        <!-- Warning No Vehicle -->
         <div th:if="${#lists.isEmpty(vehicles)}"
-            class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 rounded-r-lg">
-            <div class="flex">
+            class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-xl shadow-sm mb-8 animate-fade-in-down">
+            <div class="flex items-start">
                 <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                            clip-rule="evenodd" />
+                    <svg class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                 </div>
-                <div class="ml-3">
-                    <p class="text-sm text-yellow-700">
-                        Vous devez ajouter un véhicule avant de publier un trajet.
-                        <a href="/driver/vehicles/add" class="font-medium underline hover:text-yellow-600">Ajouter un
-                            véhicule</a>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-amber-800">Aucun véhicule enregistré</h3>
+                    <p class="mt-1 text-amber-700">
+                        Vous devez ajouter un véhicule à votre profil avant de pouvoir publier une annonce.
                     </p>
+                    <div class="mt-4">
+                        <a href="/driver/vehicles/add"
+                            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition">
+                            Ajouter mon véhicule
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div th:unless="${#lists.isEmpty(vehicles)}" class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-            <form th:action="@{/driver/publish}" th:object="${tripRequest}" method="post" class="space-y-6">
+        <!-- Form Container -->
+        <div th:unless="${#lists.isEmpty(vehicles)}"
+            class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Départ -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Ville de départ</label>
-                        <input type="text" th:field="*{departureCity}"
-                            class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
-                            placeholder="Ex: Paris" required>
+            <!-- Global Validation Errors -->
+            <div th:if="${#fields.hasErrors('${tripRequest.*}')}" class="bg-red-50 p-6 border-b border-red-100">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                clip-rule="evenodd" />
+                        </svg>
                     </div>
-
-                    <!-- Arrivée -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Ville d'arrivée</label>
-                        <input type="text" th:field="*{arrivalCity}"
-                            class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
-                            placeholder="Ex: Lyon" required>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Date -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Date et Heure</label>
-                        <input type="datetime-local" th:field="*{departureDateTime}"
-                            class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring" required>
-                    </div>
-
-                    <!-- Places et Prix -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Places</label>
-                            <input type="number" th:field="*{availableSeats}" min="1" max="8"
-                                class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
-                                value="3" required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Prix (€)</label>
-                            <input type="number" th:field="*{pricePerSeat}" min="0" step="0.5"
-                                class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
-                                placeholder="25.00" required>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Erreurs de validation</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li th:each="err : ${#fields.errors('${tripRequest.*}')}" th:text="${err}">Impossible de
+                                    valider</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Véhicule Selection -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Véhicule</label>
-                    <select th:field="*{vehicleId}"
-                        class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring" required>
-                        <option value="" disabled selected>Choisir un véhicule...</option>
-                        <option th:each="vehicle : ${vehicles}" th:value="${vehicle.id}"
-                            th:text="${vehicle.brand} + ' ' + ${vehicle.model} + ' (' + ${vehicle.licensePlate} + ')'">
-                            Peugeot 208 (AB-123-CD)
-                        </option>
-                    </select>
-                    <p class="text-xs text-gray-500 mt-1 flex justify-between">
-                        <span>Sélectionnez le véhicule pour ce trajet.</span>
-                        <a href="/driver/vehicles/add" class="text-spring hover:underline">Ajouter un nouveau
-                            véhicule</a>
-                    </p>
-                </div>
+            <form th:action="@{/driver/publish}" th:object="${tripRequest}" method="post" class="p-8 space-y-8">
+
+                <!-- 1. Itinéraire -->
+                <section>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="bg-spring/10 text-spring p-2 rounded-lg">📍</span> Itinéraire
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                        <!-- Visual Connector (Desktop only) -->
+                        <div class="hidden md:block absolute left-1/2 top-10 bottom-0 w-px bg-gray-200 -ml-px"></div>
+                        <div class="hidden md:block absolute left-1/2 top-10 w-2 h-2 bg-gray-300 rounded-full -ml-1">
+                        </div>
+
+                        <div class="relative z-10">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">De</label>
+                            <select th:field="*{departureCity}"
+                                class="block w-full px-4 py-3 rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-spring focus:ring-spring transition sm:text-sm"
+                                required>
+                                <option value="" disabled selected>Ville de départ...</option>
+                                <option th:each="city : ${cities}" th:value="${city}" th:text="${city}">Ville</option>
+                            </select>
+                        </div>
+                        <div class="relative z-10">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">À</label>
+                            <select th:field="*{arrivalCity}"
+                                class="block w-full px-4 py-3 rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-spring focus:ring-spring transition sm:text-sm"
+                                required>
+                                <option value="" disabled selected>Ville d'arrivée...</option>
+                                <option th:each="city : ${cities}" th:value="${city}" th:text="${city}">Ville</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-gray-100">
+
+                <!-- 2. Date et Durée -->
+                <section>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="bg-blue-50 text-blue-600 p-2 rounded-lg">🕒</span> Horaires
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date et heure de départ</label>
+                            <input type="datetime-local" th:field="*{departureDateTime}" required
+                                class="block w-full px-4 py-3 rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-spring focus:ring-spring transition sm:text-sm">
+                            <p th:if="${#fields.hasErrors('departureDateTime')}" th:errors="*{departureDateTime}"
+                                class="text-red-500 text-xs mt-1 font-medium"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Durée estimée (minutes)</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <input type="number" th:field="*{estimatedDuration}" required min="15"
+                                    placeholder="Ex: 90"
+                                    class="block w-full px-4 py-3 rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-spring focus:ring-spring transition sm:text-sm">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-400 sm:text-sm">min</span>
+                                </div>
+                            </div>
+                            <p th:if="${#fields.hasErrors('estimatedDuration')}" th:errors="*{estimatedDuration}"
+                                class="text-red-500 text-xs mt-1 font-medium"></p>
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-gray-100">
+
+                <!-- 3. Détails du trajet -->
+                <section>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="bg-purple-50 text-purple-600 p-2 rounded-lg">⚙️</span> Détails
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Places -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Places disponibles</label>
+                            <div class="flex items-center border border-gray-200 rounded-xl bg-gray-50 overflow-hidden">
+                                <button type="button" onclick="decrement('availableSeats')"
+                                    class="px-4 py-3 hover:bg-gray-200 text-gray-600 font-bold">-</button>
+                                <input type="number" th:field="*{availableSeats}" id="availableSeats" min="1" max="8"
+                                    readonly
+                                    class="w-full text-center border-none bg-transparent focus:ring-0 p-0 text-gray-800 font-bold">
+                                <button type="button" onclick="increment('availableSeats', 8)"
+                                    class="px-4 py-3 hover:bg-gray-200 text-gray-600 font-bold">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Prix -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Prix par passager</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">DH</span>
+                                </div>
+                                <input type="number" th:field="*{pricePerSeat}" min="0" step="0.5" placeholder="0.00"
+                                    required
+                                    class="block w-full pl-10 px-4 py-3 rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-spring focus:ring-spring transition sm:text-sm font-medium">
+                            </div>
+                        </div>
+
+                        <!-- Véhicule -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Véhicule</label>
+                            <select th:field="*{vehicleId}" required
+                                class="block w-full px-4 py-3 rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-spring focus:ring-spring transition sm:text-sm">
+                                <option value="" disabled selected>Sélectionner...</option>
+                                <option th:each="v : ${vehicles}" th:value="${v.id}"
+                                    th:text="${v.brand} + ' ' + ${v.model}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- Description -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Description / Précisions</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Informations complémentaires</label>
                     <textarea th:field="*{description}" rows="3"
-                        class="w-full px-4 py-2 border rounded-lg focus:ring-spring focus:border-spring"
-                        placeholder="Ex: Je ne fume pas, pas d'animaux..."></textarea>
+                        placeholder="Précisez votre point de rendez-vous exact, la taille des bagages acceptés, etc."
+                        class="block w-full px-4 py-3 rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-spring focus:ring-spring transition sm:text-sm"></textarea>
                 </div>
 
-                <!-- Bouton -->
-                <button type="submit"
-                    class="w-full bg-spring text-white font-bold py-3 rounded-lg hover:bg-green-600 transition shadow-md">
-                    Publier le trajet
-                </button>
+                <!-- Submit -->
+                <div class="pt-4">
+                    <button type="submit"
+                        class="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white bg-spring hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-spring transition transform hover:-translate-y-0.5">
+                        Publier mon trajet
+                    </button>
+                    <p class="text-center text-xs text-gray-400 mt-4">En publiant cette annonce, vous acceptez les
+                        conditions générales d'utilisation.</p>
+                </div>
+
             </form>
         </div>
+
+        <!-- Script MUST be inside the fragment to work with Thymeleaf layout -->
+        <script>
+            function increment(id, max) {
+                const el = document.getElementById(id);
+                let val = parseInt(el.value);
+                if (val < max) el.value = val + 1;
+            }
+            function decrement(id) {
+                const el = document.getElementById(id);
+                let val = parseInt(el.value);
+                if (val > 1) el.value = val - 1;
+            }
+        </script>
     </div>
 </body>
 

@@ -20,6 +20,7 @@ public class TripResponse {
     private LocalDateTime departureDateTime;
     private int availableSeats;
     private BigDecimal pricePerSeat;
+    private Integer estimatedDuration;
     private String description;
     private TripStatus status;
 
@@ -31,4 +32,5 @@ public class TripResponse {
     // Vehicle info
     private String carModel;
     private String carColor;
+    private Long driverTripsCount;
 }

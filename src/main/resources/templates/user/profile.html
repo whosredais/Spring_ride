@@ -12,8 +12,10 @@
         <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
             <div class="bg-night h-32 relative">
                 <div class="absolute -bottom-12 left-8">
-                    <div class="w-24 h-24 bg-white p-1 rounded-full">
-                        <div
+                    <div class="w-24 h-24 bg-white p-1 rounded-full overflow-hidden">
+                        <img th:if="${user.profilePicture != null}" th:src="@{'/uploads/' + ${user.profilePicture}}"
+                            class="w-full h-full object-cover rounded-full" alt="Profile" />
+                        <div th:unless="${user.profilePicture != null}"
                             class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-3xl font-bold text-gray-500">
                             <span th:text="${user.firstname.substring(0,1)}">U</span>
                         </div>
@@ -53,7 +55,8 @@
                 </div>
 
                 <div class="mt-8 flex justify-end">
-                    <a href="#" class="text-gray-400 hover:text-night text-sm font-medium">Modifier mon profil</a>
+                    <a th:href="@{/profile/edit}" class="text-gray-400 hover:text-night text-sm font-medium">Modifier
+                        mon profil</a>
                 </div>
             </div>
         </div>

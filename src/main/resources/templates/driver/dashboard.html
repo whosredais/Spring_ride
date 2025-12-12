@@ -30,7 +30,8 @@
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <div class="text-gray-500 text-sm mb-1 uppercase font-bold tracking-wide">Revenus (Est.)</div>
-                <div class="text-4xl font-bold text-blue-600">150 €</div>
+                <div class="text-4xl font-bold text-blue-600"
+                    th:text="${dashboard.estimatedRevenue != null ? dashboard.estimatedRevenue : 0} + ' DH'">0 DH</div>
             </div>
         </div>
 
@@ -49,7 +50,7 @@
                     <tr th:each="trip : ${dashboard.recentTripsPublished}" class="hover:bg-gray-50 transition">
                         <td class="p-4">
                             <div class="font-bold text-night"
-                                th:text="${trip.departureCity} + ' → ' + ${trip.arrivalCity}">Paris → Lyon</div>
+                                th:text="${trip.departureCity} + ' → ' + ${trip.arrivalCity}">Casablanca → Rabat</div>
                         </td>
                         <td class="p-4 text-gray-600"
                             th:text="${#temporals.format(trip.departureDateTime, 'dd/MM HH:mm')}">12/12 18:00</td>

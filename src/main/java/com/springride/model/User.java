@@ -41,6 +41,8 @@ public class User implements UserDetails {
 
     private String phone;
 
+    private String profilePicture;
+
     @Builder.Default
     private Double averageRating = 0.0;
 

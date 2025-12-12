@@ -35,6 +35,11 @@ public class DriverViewController {
         return "driver/my-trips";
     }
 
+    @ModelAttribute("cities")
+    public java.util.List<String> cities() {
+        return com.springride.util.CityUtils.MOROCCAN_CITIES;
+    }
+
     @GetMapping("/publish")
     public String publishForm(Model model, @AuthenticationPrincipal User currentUser) {
         model.addAttribute("tripRequest", new TripRequest());
@@ -43,7 +48,14 @@ public class DriverViewController {
     }
 
     @PostMapping("/publish")
-    public String processPublish(@ModelAttribute TripRequest tripRequest, @AuthenticationPrincipal User currentUser) {
+    public String processPublish(@jakarta.validation.Valid @ModelAttribute TripRequest tripRequest,
+            org.springframework.validation.BindingResult bindingResult,
+            Model model,
+            @AuthenticationPrincipal User currentUser) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("vehicles", vehicleService.getVehiclesByOwner(currentUser.getId()));
+            return "driver/publish";
+        }
         tripService.createTrip(tripRequest, currentUser);
         return "redirect:/driver/my-trips";
     }

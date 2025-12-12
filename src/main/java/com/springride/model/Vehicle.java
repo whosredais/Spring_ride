@@ -28,6 +28,7 @@ public class Vehicle {
     private String color;
     @Column(nullable = false, unique = true)
     private String licensePlate; // Immatriculation unique
+    @Builder.Default
     private int seats = 4; // Nombre de places totales
 
     // Une voiture appartient à un seul propriétaire

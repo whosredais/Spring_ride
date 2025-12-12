@@ -15,14 +15,15 @@
                 class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
                 <div>
                     <h3 class="text-xl font-bold text-night"
-                        th:text="${trip.departureCity} + ' → ' + ${trip.arrivalCity}">Paris → Lyon</h3>
+                        th:text="${trip.departureCity} + ' → ' + ${trip.arrivalCity}">Casablanca → Rabat</h3>
                     <p class="text-gray-500"
                         th:text="${#temporals.format(trip.departureDateTime, 'dd MMMM yyyy à HH:mm')}">14 Janvier 2025
                     </p>
                     <div class="mt-2 flex gap-2">
-                        <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">3 places restantes</span>
+                        <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md"
+                            th:text="${trip.availableSeats} + ' places restantes'">3 places restantes</span>
                         <span class="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-md font-bold"
-                            th:text="${trip.pricePerSeat} + ' €'">25 €</span>
+                            th:text="${trip.pricePerSeat} + ' DH'">25 DH</span>
                     </div>
                 </div>
                 <div class="flex gap-3">

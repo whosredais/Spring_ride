@@ -20,7 +20,8 @@
 
                     <!-- USER MENU -->
                     <th:block th:if="${session.userMode == 'PASSENGER' or session.userMode == null}">
-                        <a href="/search" class="text-gray-600 hover:text-spring font-medium transition">Rechercher</a>
+                        <a th:if="${#authorization.expression('isAuthenticated()')}" href="/search"
+                            class="text-gray-600 hover:text-spring font-medium transition">Rechercher</a>
                         <a th:if="${#authorization.expression('isAuthenticated()')}" href="/reservations"
                             class="text-gray-600 hover:text-spring font-medium transition">Mes Réservations</a>
                     </th:block>
@@ -55,11 +56,13 @@
 
                     <th:block th:if="${#authorization.expression('isAuthenticated()')}">
                         <!-- Mode Switcher -->
-                        <a href="/switch-mode"
-                            th:class="${session.userMode == 'DRIVER'} ? 'bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-blue-700 transition mr-2' : 'bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-gray-300 transition mr-2'"
-                            th:text="${session.userMode == 'DRIVER'} ? 'Mode Conducteur' : 'Mode Passager'">
-                            Mode
-                        </a>
+                        <th:block th:if="${#authorization.expression('hasRole(''CONDUCTEUR'')')}">
+                            <a href="/switch-mode"
+                                th:class="${session.userMode == 'DRIVER'} ? 'bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-blue-700 transition mr-2' : 'bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-gray-300 transition mr-2'"
+                                th:text="${session.userMode == 'DRIVER'} ? 'Switcher vers mode Passager' : 'Switcher vers mode Conducteur'">
+                                Mode
+                            </a>
+                        </th:block>
 
                         <!-- Profile Dropdown (Simplified as link for now) -->
                         <a href="/profile" class="flex items-center gap-2 text-gray-700 hover:text-spring font-medium">
