@@ -9,4 +9,6 @@ public interface UserService {
     DashboardResponse getUserDashboard(Long userId);
 
     void updateProfile(Long userId, com.springride.dto.ProfileRequest request);
+
+    com.springride.model.User getUserByEmail(String email);
 }

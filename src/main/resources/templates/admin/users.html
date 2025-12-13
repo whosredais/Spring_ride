@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Gestion des Utilisateurs - Admin</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-night">Gestion des <span class="text-red-600">Utilisateurs</span></h1>
+            <a href="/admin/dashboard" class="text-gray-500 hover:text-night font-medium flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                        clip-rule="evenodd" />
+                </svg>
+                Retour
+            </a>
+        </div>
+
+        <!-- Feedback Messages -->
+        <div th:if="${successMessage}"
+            class="mb-6 p-4 bg-green-50 text-green-700 rounded-xl border border-green-200 flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd" />
+            </svg>
+            <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}"
+            class="mb-6 p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clip-rule="evenodd" />
+            </svg>
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr
+                            class="bg-gray-50 border-b border-gray-100 text-xs uppercase text-gray-500 font-bold tracking-wider">
+                            <th class="p-4">Utilisateur</th>
+                            <th class="p-4">Rôles</th>
+                            <th class="p-4">Statut</th>
+                            <th class="p-4">Note</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr th:each="user : ${users}" class="hover:bg-gray-50 transition">
+                            <td class="p-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                        <img th:if="${user.profilePicture}" th:src="@{${user.profilePicture}}"
+                                            class="w-full h-full object-cover">
+                                        <span th:unless="${user.profilePicture}" class="font-bold text-gray-500"
+                                            th:text="${#strings.substring(user.firstname,0,1)}"></span>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-night"
+                                            th:text="${user.firstname + ' ' + user.lastname}"></p>
+                                        <p class="text-xs text-gray-500" th:text="${user.email}"></p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <div class="flex flex-wrap gap-1">
+                                    <span th:each="role : ${user.roles}" class="px-2 py-1 text-xs rounded-md font-bold"
+                                        th:classappend="${role.name() == 'ADMIN'} ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'"
+                                        th:text="${role.name()}">
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <span th:if="${user.active}"
+                                    class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-md font-bold">Actif</span>
+                                <span th:unless="${user.active}"
+                                    class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-md font-bold">Bloqué</span>
+                            </td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-1 text-amber-400 font-bold text-sm">
+                                    <span th:text="${#numbers.formatDecimal(user.averageRating, 1, 1)}">4.5</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current"
+                                        viewBox="0 0 20 20">
+                                        <path
+                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                    <span class="text-xs text-gray-400 font-normal ml-1"
+                                        th:text="'(' + ${user.reviewCount} + ')'"></span>
+                                </div>
+                            </td>
+                            <td class="p-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <form th:action="@{/admin/users/{id}/toggle-status(id=${user.id})}" method="post">
+                                        <button type="submit" class="p-2 rounded-lg transition"
+                                            th:classappend="${user.active} ? 'bg-orange-50 text-orange-600 hover:bg-orange-100' : 'bg-green-50 text-green-600 hover:bg-green-100'"
+                                            th:title="${user.active} ? 'Bloquer' : 'Débloquer'">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path th:if="${user.active}" stroke-linecap="round"
+                                                    stroke-linejoin="round" stroke-width="2"
+                                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                                <path th:unless="${user.active}" stroke-linecap="round"
+                                                    stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                    <!-- Delete Button (Caution) -->
+                                    <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post"
+                                        onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.');">
+                                        <button type="submit"
+                                            class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition"
+                                            title="Supprimer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${#lists.isEmpty(users)}" class="p-8 text-center text-gray-500">
+                Aucun utilisateur trouvé.
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

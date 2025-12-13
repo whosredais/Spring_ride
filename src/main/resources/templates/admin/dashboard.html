@@ -10,23 +10,23 @@
     <div layout:fragment="content" class="max-w-7xl mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-night mb-8">Tableau de bord <span class="text-red-600">ADMIN</span></h1>
 
-        <!-- Stats Mockups -->
+        <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <div class="text-gray-500 text-sm mb-1 uppercase font-bold tracking-wide">Utilisateurs</div>
-                <div class="text-4xl font-bold text-night">124</div>
+                <div class="text-4xl font-bold text-night" th:text="${totalUsers}">0</div>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <div class="text-gray-500 text-sm mb-1 uppercase font-bold tracking-wide">Trajets</div>
-                <div class="text-4xl font-bold text-night">45</div>
+                <div class="text-4xl font-bold text-night" th:text="${totalTrips}">0</div>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <div class="text-gray-500 text-sm mb-1 uppercase font-bold tracking-wide">Réservations</div>
-                <div class="text-4xl font-bold text-night">89</div>
+                <div class="text-4xl font-bold text-night" th:text="${totalReservations}">0</div>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <div class="text-gray-500 text-sm mb-1 uppercase font-bold tracking-wide">Signalements</div>
-                <div class="text-4xl font-bold text-red-500">2</div>
+                <div class="text-4xl font-bold text-red-500" th:text="${totalReports}">0</div>
             </div>
         </div>
 
@@ -35,35 +35,26 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <h2 class="text-xl font-bold mb-4">Derniers utilisateurs inscrits</h2>
                 <ul class="space-y-4">
-                    <li class="flex items-center justify-between">
+                    <li th:each="user : ${recentUsers}" class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <div
-                                class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-600">
-                                A</div>
+                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-600"
+                                th:text="${#strings.substring(user.firstname, 0, 1)}">
+                                U</div>
                             <div>
-                                <p class="font-bold text-night">Alice Martin</p>
-                                <p class="text-xs text-gray-500">alice@example.com</p>
+                                <p class="font-bold text-night" th:text="${user.firstname + ' ' + user.lastname}">Nom
+                                    Prénom</p>
+                                <p class="text-xs text-gray-500" th:text="${user.email}">email@example.com</p>
                             </div>
                         </div>
-                        <span class="text-sm text-gray-400">Il y a 2h</span>
+                        <!-- <span class="text-sm text-gray-400">Date N/A</span> -->
                     </li>
-                    <li class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-600">
-                                B</div>
-                            <div>
-                                <p class="font-bold text-night">Bob Dupuis</p>
-                                <p class="text-xs text-gray-500">bob@example.com</p>
-                            </div>
-                        </div>
-                        <span class="text-sm text-gray-400">Hier</span>
+                    <li th:if="${#lists.isEmpty(recentUsers)}" class="text-gray-500 text-sm">Aucun utilisateur récent.
                     </li>
                 </ul>
-                <button
-                    class="w-full mt-6 py-2 text-center text-sm font-bold text-gray-500 hover:text-night border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                <a href="/admin/users"
+                    class="block w-full mt-6 py-2 text-center text-sm font-bold text-gray-500 hover:text-night border border-gray-200 rounded-lg hover:bg-gray-50 transition">
                     Voir tous les utilisateurs
-                </button>
+                </a>
             </div>
 
             <!-- Actions -->
@@ -71,16 +62,16 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <h2 class="text-xl font-bold mb-4">Actions rapides</h2>
                     <div class="grid grid-cols-2 gap-4">
-                        <button
-                            class="p-4 bg-gray-50 rounded-lg text-left hover:bg-gray-100 transition ring-1 ring-gray-200">
+                        <a href="/admin/trips"
+                            class="block p-4 bg-gray-50 rounded-lg text-left hover:bg-gray-100 transition ring-1 ring-gray-200">
                             <span class="block font-bold text-night">Gérer les Trajets</span>
                             <span class="text-xs text-gray-500">Supprimer, modérer...</span>
-                        </button>
-                        <button
-                            class="p-4 bg-gray-50 rounded-lg text-left hover:bg-gray-100 transition ring-1 ring-gray-200">
-                            <span class="block font-bold text-night">Gérer les Avis</span>
-                            <span class="text-xs text-gray-500">Modérer les commentaires</span>
-                        </button>
+                        </a>
+                        <a href="/admin/reports"
+                            class="block p-4 bg-gray-50 rounded-lg text-left hover:bg-gray-100 transition ring-1 ring-gray-200">
+                            <span class="block font-bold text-night">Gérer les Signalements</span>
+                            <span class="text-xs text-gray-500">Modérer les abus</span>
+                        </a>
                     </div>
                 </div>
             </div>

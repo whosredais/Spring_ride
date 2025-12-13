@@ -47,6 +47,9 @@ public class User implements UserDetails {
     private Double averageRating = 0.0;
 
     @Builder.Default
+    private boolean active = true;
+
+    @Builder.Default
     private Integer reviewCount = 0;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -89,6 +92,43 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.active;
     }
+
+    // === Relations pour suppression en cascade ===
+
+    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @lombok.ToString.Exclude
+    @Builder.Default
+    private Set<Trip> trips = new HashSet<>();
+
+    @OneToMany(mappedBy = "passenger", cascade = CascadeType.ALL, orphanRemoval = true)
+    @lombok.ToString.Exclude
+    @Builder.Default
+    private Set<Reservation> reservations = new HashSet<>();
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @lombok.ToString.Exclude
+    @Builder.Default
+    private Set<Vehicle> vehicles = new HashSet<>();
+
+    @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @lombok.ToString.Exclude
+    @Builder.Default
+    private Set<Report> sentReports = new HashSet<>();
+
+    @OneToMany(mappedBy = "reportedUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @lombok.ToString.Exclude
+    @Builder.Default
+    private Set<Report> receivedReports = new HashSet<>();
+
+    @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @lombok.ToString.Exclude
+    @Builder.Default
+    private Set<Review> writtenReviews = new HashSet<>();
+
+    @OneToMany(mappedBy = "reviewed", cascade = CascadeType.ALL, orphanRemoval = true)
+    @lombok.ToString.Exclude
+    @Builder.Default
+    private Set<Review> receivedReviews = new HashSet<>();
 }

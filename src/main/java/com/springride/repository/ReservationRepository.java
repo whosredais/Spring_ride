@@ -30,4 +30,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     // Historique complet (passés ou annulés)
     @Query("SELECT r FROM Reservation r WHERE r.passenger.id = :passengerId AND (r.trip.departureDateTime <= CURRENT_TIMESTAMP OR r.status = 'ANNULEE' OR r.status = 'REFUSEE') ORDER BY r.trip.departureDateTime DESC")
     List<Reservation> findPastReservations(@Param("passengerId") Long passengerId);
+
+    void deleteByPassengerId(Long passengerId);
 }

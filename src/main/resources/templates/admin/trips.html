@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Gestion des Trajets - Admin</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-night">Gestion des <span class="text-red-600">Trajets</span></h1>
+            <a href="/admin/dashboard" class="text-gray-500 hover:text-night font-medium flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                        clip-rule="evenodd" />
+                </svg>
+                Retour
+            </a>
+        </div>
+
+        <!-- Feedback Messages -->
+        <div th:if="${successMessage}"
+            class="mb-6 p-4 bg-green-50 text-green-700 rounded-xl border border-green-200 flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd" />
+            </svg>
+            <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}"
+            class="mb-6 p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clip-rule="evenodd" />
+            </svg>
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr
+                            class="bg-gray-50 border-b border-gray-100 text-xs uppercase text-gray-500 font-bold tracking-wider">
+                            <th class="p-4">Départ</th>
+                            <th class="p-4">Arrivée</th>
+                            <th class="p-4">Date</th>
+                            <th class="p-4">Conducteur</th>
+                            <th class="p-4">Prix</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr th:each="trip : ${trips}" class="hover:bg-gray-50 transition">
+                            <td class="p-4 font-bold text-night" th:text="${trip.departureCity}"></td>
+                            <td class="p-4 font-bold text-night" th:text="${trip.arrivalCity}"></td>
+                            <td class="p-4 text-sm text-gray-600">
+                                <span th:text="${#temporals.format(trip.departureDateTime, 'dd/MM/yyyy')}"></span>
+                                <br>
+                                <span class="text-xs text-gray-400"
+                                    th:text="${#temporals.format(trip.departureDateTime, 'HH:mm')}"></span>
+                            </td>
+                            <td class="p-4">
+                                <div class="text-sm font-bold text-night"
+                                    th:text="${trip.driver.firstname + ' ' + trip.driver.lastname}"></div>
+                                <div class="text-xs text-gray-500" th:text="${trip.driver.email}"></div>
+                            </td>
+                            <td class="p-4 font-bold text-emerald-600" th:text="${trip.pricePerSeat + ' TND'}"></td>
+                            <td class="p-4 text-right">
+                                <form th:action="@{/admin/trips/{id}/delete(id=${trip.id})}" method="post"
+                                    onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce trajet ?');">
+                                    <button type="submit"
+                                        class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition"
+                                        title="Supprimer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${#lists.isEmpty(trips)}" class="p-8 text-center text-gray-500">
+                Aucun trajet trouvé.
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Gestion des Signalements - Admin</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-night">Gestion des <span class="text-red-600">Signalements</span></h1>
+            <a href="/admin/dashboard" class="text-gray-500 hover:text-night font-medium flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                        clip-rule="evenodd" />
+                </svg>
+                Retour
+            </a>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex gap-4 mb-6">
+            <a href="/admin/reports" class="px-4 py-2 rounded-full font-bold text-sm transition"
+                th:classappend="${currentStatus == null} ? 'bg-night text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'">
+                Tous
+            </a>
+            <a href="/admin/reports?status=PENDING" class="px-4 py-2 rounded-full font-bold text-sm transition"
+                th:classappend="${currentStatus != null && currentStatus.name() == 'PENDING'} ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'">
+                En attente
+            </a>
+            <a href="/admin/reports?status=RESOLVED" class="px-4 py-2 rounded-full font-bold text-sm transition"
+                th:classappend="${currentStatus != null && currentStatus.name() == 'RESOLVED'} ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'">
+                Résolus
+            </a>
+            <a href="/admin/reports?status=DISMISSED" class="px-4 py-2 rounded-full font-bold text-sm transition"
+                th:classappend="${currentStatus != null && currentStatus.name() == 'DISMISSED'} ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'">
+                Rejetés
+            </a>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr
+                            class="bg-gray-50 border-b border-gray-100 text-xs uppercase text-gray-500 font-bold tracking-wider">
+                            <th class="p-4">Date</th>
+                            <th class="p-4">Signalé par</th>
+                            <th class="p-4">Utilisateur signalé</th>
+                            <th class="p-4">Raison</th>
+                            <th class="p-4">Statut</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr th:each="report : ${reports}" class="hover:bg-gray-50 transition">
+                            <td class="p-4 text-sm text-gray-500"
+                                th:text="${#temporals.format(report.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td class="p-4">
+                                <span class="font-bold text-night"
+                                    th:text="${report.reporter.firstname + ' ' + report.reporter.lastname}"></span>
+                            </td>
+                            <td class="p-4">
+                                <div class="font-bold text-red-600"
+                                    th:text="${report.reportedUser.firstname + ' ' + report.reportedUser.lastname}">
+                                </div>
+                                <div class="text-xs text-gray-400" th:text="${report.reportedUser.email}"></div>
+                            </td>
+                            <td class="p-4 text-sm text-gray-600" th:text="${report.reason}"></td>
+                            <td class="p-4">
+                                <span class="px-2 py-1 text-xs rounded-md font-bold"
+                                    th:classappend="${report.status.name() == 'PENDING'} ? 'bg-orange-100 text-orange-700' : 
+                                                      (${report.status.name() == 'RESOLVED'} ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600')"
+                                    th:text="${report.status}">
+                                </span>
+                            </td>
+                            <td class="p-4 text-right">
+                                <div th:if="${report.status.name() == 'PENDING'}"
+                                    class="flex items-center justify-end gap-2">
+                                    <form th:action="@{/admin/reports/{id}/status(id=${report.id})}" method="post">
+                                        <input type="hidden" name="status" value="RESOLVED">
+                                        <button type="submit"
+                                            class="px-3 py-1 bg-green-50 text-green-600 rounded-md text-sm font-bold hover:bg-green-100 transition">
+                                            Valider
+                                        </button>
+                                    </form>
+                                    <form th:action="@{/admin/reports/{id}/status(id=${report.id})}" method="post">
+                                        <input type="hidden" name="status" value="DISMISSED">
+                                        <button type="submit"
+                                            class="px-3 py-1 bg-gray-50 text-gray-600 rounded-md text-sm font-bold hover:bg-gray-100 transition">
+                                            Rejeter
+                                        </button>
+                                    </form>
+                                </div>
+                                <span th:unless="${report.status.name() == 'PENDING'}"
+                                    class="text-xs text-gray-400 italic">
+                                    Traité
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${#lists.isEmpty(reports)}" class="p-8 text-center text-gray-500">
+                Aucun signalement trouvé.
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
