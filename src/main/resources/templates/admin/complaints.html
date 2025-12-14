@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Gestion des Réclamations</title>
+</head>
+
+<body>
+
+    <div layout:fragment="content" class="container mx-auto px-4 py-8 max-w-6xl">
+
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-night">Gestion des Réclamations</h1>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${successMessage}"
+            class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+            <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}"
+            class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Reports Table -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <table class="min-w-full leading-normal">
+                <thead>
+                    <tr>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Date
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Signaleur
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Utilisateur Signalé
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Raison
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Statut
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="report : ${reports}">
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <p class="text-gray-900 whitespace-no-wrap"
+                                th:text="${#temporals.format(report.createdAt, 'dd/MM/yyyy HH:mm')}"></p>
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <p class="text-gray-900 whitespace-no-wrap" th:text="${report.reporter.email}"></p>
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <div class="flex items-center">
+                                <div class="ml-3">
+                                    <p class="text-gray-900 whitespace-no-wrap"
+                                        th:text="${report.reportedUser.firstname + ' ' + report.reportedUser.lastname}">
+                                    </p>
+                                    <p class="text-gray-600 text-xs" th:text="${report.reportedUser.email}"></p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <p class="text-gray-900 whitespace-no-wrap" th:text="${report.reason}"></p>
+                            <p th:if="${report.trip}" class="text-xs text-gray-500 mt-1">
+                                Trajet: <span th:text="${report.trip.id}"></span>
+                                (<span th:text="${report.trip.departureCity}"></span> -> <span
+                                    th:text="${report.trip.arrivalCity}"></span>)
+                            </p>
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <span
+                                th:class="${'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + 
+                            (report.status.name() == 'RESOLVED' ? 'bg-green-100 text-green-800' : 
+                            (report.status.name() == 'DISMISSED' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'))}">
+                                <span th:text="${report.status}"></span>
+                            </span>
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <div class="flex space-x-2" th:if="${report.status.name() == 'PENDING'}">
+                                <form th:action="@{/reports/{id}/resolve(id=${report.id})}" method="post">
+                                    <button type="submit"
+                                        class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded text-xs">
+                                        Résoudre
+                                    </button>
+                                </form>
+                                <form th:action="@{/reports/{id}/dismiss(id=${report.id})}" method="post">
+                                    <button type="submit"
+                                        class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs">
+                                        Rejeter
+                                    </button>
+                                </form>
+                            </div>
+                            <span th:unless="${report.status.name() == 'PENDING'}" class="text-gray-400 text-xs">Aucune
+                                action</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(reports)}">
+                        <td colspan="6" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
+                            Aucune réclamation trouvée.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+
+</html>

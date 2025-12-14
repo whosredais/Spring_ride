@@ -4,10 +4,10 @@ import com.springride.model.User;
 import com.springride.service.ReportService;
 import com.springride.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
@@ -20,22 +20,55 @@ public class ReportController {
     private final ReportService reportService;
     private final UserService userService;
 
+    // --- User Endpoints ---
+
     @PostMapping("/submit")
     public String submitReport(@RequestParam Long reportedUserId,
+            @RequestParam(required = false) Long tripId, // Optional trip
             @RequestParam String reason,
             Principal principal,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            @RequestHeader(value = "Referer", required = false) String referer) {
         try {
             User reporter = userService.getUserByEmail(principal.getName());
-            reportService.createReport(reportedUserId, reason, reporter);
+            reportService.createReport(reportedUserId, tripId, reason, reporter);
             redirectAttributes.addFlashAttribute("successMessage", "Votre signalement a bien été pris en compte.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Erreur lors de la soumission du signalement : " + e.getMessage());
         }
+        return "redirect:" + (referer != null ? referer : "/");
+    }
 
-        // Redirect back to referring page or defaulting to home.
-        // ideally we should pass a redirect URL or just back
-        return "redirect:/";
+    @GetMapping("/my-reports")
+    public String myReports(Principal principal, Model model) {
+        User user = userService.getUserByEmail(principal.getName());
+        model.addAttribute("reports", reportService.getReportsByUser(user));
+        return "user/complaints";
+    }
+
+    // --- Admin Endpoints ---
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String allReports(Model model) {
+        model.addAttribute("reports", reportService.getAllReports());
+        return "admin/complaints";
+    }
+
+    @PostMapping("/{id}/resolve")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String resolveReport(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        reportService.resolveReport(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Signalement marqué comme résolu.");
+        return "redirect:/reports/admin";
+    }
+
+    @PostMapping("/{id}/dismiss")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String dismissReport(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        reportService.dismissReport(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Signalement rejeté.");
+        return "redirect:/reports/admin";
     }
 }

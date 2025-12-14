@@ -10,4 +10,8 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     void deleteByReporterId(Long reporterId);
 
     void deleteByReportedUserId(Long reportedUserId);
+
+    List<Report> findByReporterOrderByCreatedAtDesc(com.springride.model.User reporter);
+
+    List<Report> findAllByOrderByCreatedAtDesc();
 }

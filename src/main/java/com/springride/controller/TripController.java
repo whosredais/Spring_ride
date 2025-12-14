@@ -58,4 +58,12 @@ public class TripController {
         tripService.cancelTrip(id, currentUser.getId());
         return ResponseEntity.ok(new MessageResponse("Trajet annulé avec succès"));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TripResponse> updateTrip(
+            @PathVariable Long id,
+            @Valid @RequestBody TripRequest request,
+            @AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(tripService.updateTrip(id, request, currentUser.getId()));
+    }
 }

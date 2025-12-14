@@ -24,8 +24,13 @@ public class Report {
     private User reporter;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reported_user_id", nullable = false)
+    @JoinColumn(name = "reported_user_id", nullable = true) // Can be null if reporting a trip generally or backend
+                                                            // logic handles it
     private User reportedUser;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trip_id")
+    private Trip trip;
 
     @Column(nullable = false)
     private String reason;
