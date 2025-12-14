@@ -57,6 +57,9 @@ public class User implements UserDetails {
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
+    @Builder.Default
+    private boolean accountVerified = false;
+
     // === Méthodes obligatoires pour Spring Security ===
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -92,7 +95,8 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return this.active;
+        // User must be both active (admin control) and verified (email)
+        return this.active && this.accountVerified;
     }
 
     // === Relations pour suppression en cascade ===

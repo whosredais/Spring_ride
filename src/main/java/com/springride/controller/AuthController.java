@@ -24,4 +24,34 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(new AuthResponse(authService.login(request)));
     }
+
+    @PostMapping("/verify-account")
+    public ResponseEntity<?> verifyAccount(@RequestBody com.springride.dto.OtpVerificationRequest request) {
+        authService.verifyAccount(request.getEmail(), request.getCode());
+        return ResponseEntity.ok("Compte vérifié avec succès. Vous pouvez maintenant vous connecter.");
+    }
+
+    @PostMapping("/resend-otp")
+    public ResponseEntity<?> resendOtp(@RequestBody com.springride.dto.EmailRequest request) {
+        authService.resendOtp(request.getEmail());
+        return ResponseEntity.ok("Nouveau code envoyé.");
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody com.springride.dto.EmailRequest request) {
+        authService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok("Code de réinitialisation envoyé.");
+    }
+
+    @PostMapping("/verify-reset-otp")
+    public ResponseEntity<?> verifyResetOtp(@RequestBody com.springride.dto.OtpVerificationRequest request) {
+        authService.verifyResetOtp(request.getEmail(), request.getCode());
+        return ResponseEntity.ok("Code valide.");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody com.springride.dto.ResetPasswordRequest request) {
+        authService.resetPassword(request.getEmail(), request.getCode(), request.getNewPassword());
+        return ResponseEntity.ok("Mot de passe modifié avec succès.");
+    }
 }

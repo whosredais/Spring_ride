@@ -41,7 +41,22 @@ public class WebController {
     @PostMapping("/register")
     public String processRegister(@ModelAttribute("registerRequest") RegisterRequest registerRequest) {
         authService.register(registerRequest);
-        return "redirect:/login";
+        return "redirect:/verify-account?email=" + registerRequest.getEmail();
+    }
+
+    @GetMapping("/verify-account")
+    public String verifyAccount(Model model) {
+        return "auth/verify-account";
+    }
+
+    @GetMapping("/forgot-password")
+    public String forgotPassword(Model model) {
+        return "auth/forgot-password";
+    }
+
+    @GetMapping("/reset-password")
+    public String resetPassword(Model model) {
+        return "auth/reset-password";
     }
 
     @GetMapping("/switch-mode")
