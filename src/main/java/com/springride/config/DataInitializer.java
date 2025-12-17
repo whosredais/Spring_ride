@@ -28,14 +28,14 @@ public class DataInitializer implements CommandLineRunner { // → run() s’ex�
                     .email("admin@springride.com")
                     .password(passwordEncoder.encode("admin123"))
                     .phone("0600000000")
-                    .roles(Set.of(Role.ADMIN, Role.CONDUCTEUR, Role.PASSAGER))
+                    .roles(Set.of(Role.ADMIN))
                     .active(true)
                     .accountVerified(true)
                     .build();
             userRepository.save(admin);
             System.out.println("ADMIN créé → email: admin@springride.com | mot de passe: admin123");
         } else {
-            // Ensure it is active if it exists
+            // Ensure it is active and has strictly ADMIN role
             userRepository.findByEmail("admin@springride.com").ifPresent(admin -> {
                 boolean changed = false;
                 if (!admin.isActive()) {
@@ -48,6 +48,13 @@ public class DataInitializer implements CommandLineRunner { // → run() s’ex�
                     changed = true;
                     System.out.println("Compte ADMIN (springride) vérifié.");
                 }
+                // Enforce STRICTLY ADMIN role (remove others)
+                if (admin.getRoles().size() != 1 || !admin.getRoles().contains(Role.ADMIN)) {
+                    admin.setRoles(Set.of(Role.ADMIN));
+                    changed = true;
+                    System.out.println("Roles ADMIN corrigés (ADMIN unique).");
+                }
+
                 if (changed) {
                     userRepository.save(admin);
                 }
@@ -63,11 +70,11 @@ public class DataInitializer implements CommandLineRunner { // → run() s’ex�
                 changed = true;
                 System.out.println("Compte 'admin@spring.com' réactivé.");
             }
-            // Ensure ROLE_ADMIN (just in case)
-            if (!user.getRoles().contains(Role.ADMIN)) {
-                user.getRoles().add(Role.ADMIN);
+            // Enforce STRICTLY ADMIN role
+            if (user.getRoles().size() != 1 || !user.getRoles().contains(Role.ADMIN)) {
+                user.setRoles(Set.of(Role.ADMIN));
                 changed = true;
-                System.out.println("Role ADMIN ajouté à 'admin@spring.com'.");
+                System.out.println("Roles mis à jour pour 'admin@spring.com' -> ADMIN unique.");
             }
 
             if (changed) {

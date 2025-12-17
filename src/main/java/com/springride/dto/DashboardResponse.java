@@ -24,4 +24,8 @@ public class DashboardResponse {
     // Listes (récentes)
     private List<TripResponse> recentTripsPublished;
     private List<ReservationResponse> recentReservationsRequest;
+
+    // Avertissements
+    private Integer strikes;
+    private String warningMessage;
 }

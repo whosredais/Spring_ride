@@ -102,6 +102,17 @@ public class AdminViewController {
         return "redirect:/admin/reports";
     }
 
+    @PostMapping("/users/{id}/warn")
+    public String warnUser(@PathVariable Long id, @RequestParam String message, RedirectAttributes redirectAttributes) {
+        try {
+            adminService.sendWarning(id, message);
+            redirectAttributes.addFlashAttribute("successMessage", "Avertissement envoyé à l'utilisateur.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de l'envoi de l'avertissement.");
+        }
+        return "redirect:/admin/reports"; // Remain on reports page as likely triggered from there
+    }
+
     // --- Trip Management ---
 
     @GetMapping("/trips")

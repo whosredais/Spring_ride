@@ -104,6 +104,11 @@
                                         Rejeter
                                     </button>
                                 </form>
+                                <button onclick="openWarnModal(this)" th:data-report-id="${report.id}"
+                                    th:data-reported-name="${report.reportedUser.firstname + ' ' + report.reportedUser.lastname}"
+                                    class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded text-xs">
+                                    Avertir
+                                </button>
                             </div>
                             <span th:unless="${report.status.name() == 'PENDING'}" class="text-gray-400 text-xs">Aucune
                                 action</span>
@@ -118,6 +123,38 @@
             </table>
         </div>
     </div>
+
+    <!-- Warn Modal -->
+    <div id="warnModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Avertir le conducteur</h3>
+            <p class="mb-4 text-gray-600">Vous êtes sur le point d'envoyer un avertissement à <span id="warnUserName"
+                    class="font-bold"></span>.</p>
+            <p class="mb-4 text-sm text-red-500">Note: Cet action enverra automatiquement un avertissement. 2
+                avertissements entraîneront la suspension automatique du compte.</p>
+
+            <form id="warnForm" method="post">
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="document.getElementById('warnModal').classList.add('hidden')"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Annuler</button>
+                    <button type="submit"
+                        class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Envoyer
+                        Avertissement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openWarnModal(btn) {
+            const reportId = btn.getAttribute('data-report-id');
+            const userName = btn.getAttribute('data-reported-name');
+
+            document.getElementById('warnUserName').textContent = userName;
+            document.getElementById('warnForm').action = '/reports/' + reportId + '/warn';
+            document.getElementById('warnModal').classList.remove('hidden');
+        }
+    </script>
 
 </body>
 

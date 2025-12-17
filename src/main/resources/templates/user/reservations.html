@@ -48,11 +48,19 @@
                     <p class="text-sm text-gray-500 mb-4">Conducteur : <span class="font-medium"
                             th:text="${res.driverName != null ? res.driverName : 'Inconnu'}">Nom</span></p>
 
-                    <button onclick="openReviewModal(this)" th:data-trip-id="${res.tripId}"
-                        th:data-driver-id="${res.driverId}"
-                        class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded-lg transition shadow-sm">
-                        Noter le conducteur
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="openReviewModal(this)" th:data-trip-id="${res.tripId}"
+                            th:data-driver-id="${res.driverId}"
+                            class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded-lg transition shadow-sm">
+                            Noter
+                        </button>
+                        <button onclick="openReportModal(this)" th:data-trip-id="${res.tripId}"
+                            th:data-reported-id="${res.driverId}"
+                            class="bg-red-50 text-red-600 hover:bg-red-100 font-bold py-2 px-4 rounded-lg transition shadow-sm"
+                            title="Signaler le conducteur">
+                            ⚠
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -89,7 +97,15 @@
                         <div class="flex items-center justify-between">
                             <a th:href="@{'/trips/' + ${res.tripId}}"
                                 class="text-spring font-medium hover:underline text-sm">Voir détails</a>
-                            <span class="text-xs text-gray-400"
+
+                            <!-- Add Report Button for past/confirmed trips if needed, or keep minimal -->
+                            <button th:if="${res.status.name() == 'CONFIRMEE'}" onclick="openReportModal(this)"
+                                th:data-trip-id="${res.tripId}" th:data-reported-id="${res.driverId}"
+                                class="text-red-400 hover:text-red-600 text-xs font-bold transition flex items-center gap-1">
+                                ⚠ Signaler
+                            </button>
+
+                            <span th:unless="${res.status.name() == 'CONFIRMEE'}" class="text-xs text-gray-400"
                                 th:text="${'Réservé le ' + #temporals.format(res.requestedAt, 'dd/MM/yyyy')}">Date
                                 réservation</span>
                         </div>
@@ -100,31 +116,12 @@
 
         <!-- Section A venir (confirmées uniquement) -->
         <div th:if="${!#lists.isEmpty(upcomingReservations)}" class="mb-10" style="display: none;">
+            <!-- ... existing content ... -->
             <h2 class="text-xl font-bold text-night mb-4">A venir</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div th:each="res : ${upcomingReservations}"
                     class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between h-full hover:shadow-md transition">
-
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <div class="text-sm text-gray-500 mb-1"
-                                th:text="${#temporals.format(res.departureDateTime, 'EEEE d MMMM à HH:mm')}">Date
-                            </div>
-                            <h3 class="text-xl font-bold text-night">
-                                <span th:text="${res.departureCity}">Casa</span> <span class="text-gray-300">➔</span>
-                                <span th:text="${res.arrivalCity}">Rabat</span>
-                            </h3>
-                        </div>
-                        <span
-                            class="px-3 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-full uppercase tracking-wide">CONFIRMÉE</span>
-                    </div>
-
-                    <div class="border-t border-gray-50 pt-4 mt-auto">
-                        <div class="flex items-center justify-between">
-                            <a th:href="@{'/trips/' + ${res.tripId}}"
-                                class="text-spring font-medium hover:underline text-sm">Voir détails</a>
-                        </div>
-                    </div>
+                    <!-- ... content ... -->
                 </div>
             </div>
         </div>
@@ -147,22 +144,6 @@
 
                 <form th:action="@{/reviews}" method="post" th:object="${newReview}">
                     <input type="hidden" id="modalTripId" th:field="*{tripId}" />
-                    <!-- Assuming reviewedUserId is fetched backend side from trip or added to DTO. 
-                         Wait, ReviewRequest needs reviewedUserId.
-                         Currently ReservationResponse doesn't have driverId.
-                         I MUST update ReservationResponse to include driverId.
-                         For now I will use hidden input but I need to pass driverId.
-                         Let's assume backend finds driver from tripId.
-                         ReviewServiceImpl: addReview(request, user) -> tripRepository.findById(request.getTripId()) -> trip.getDriver()
-                         So request.reviewedUserId IS NOT NEEDED if logic infers it from Trip.
-                         Let's check ReviewServiceImpl.
-                         Step 537: 
-                            if (reviewer.getId().equals(request.getReviewedUserId())) ...
-                            User reviewedUser = userRepository.findById(request.getReviewedUserId())...
-                         It DOES require reviewedUserId.
-                         So I need to provide it.
-                         I must update ReservationResponse DTO.
-                    -->
                     <input type="hidden" id="modalReviewedId" th:field="*{reviewedUserId}" />
 
                     <div class="flex justify-center gap-2 mb-6" id="starContainer">
@@ -194,13 +175,42 @@
             </div>
         </div>
 
+        <!-- Report Modal -->
+        <div id="reportModal"
+            class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all scale-100">
+                <h3 class="text-2xl font-bold text-red-600 mb-4">Signaler un problème</h3>
+                <p class="text-gray-500 mb-6">Décrivez le problème rencontré avec ce conducteur.</p>
+
+                <form action="/reports/submit" method="post">
+                    <input type="hidden" id="reportTripId" name="tripId" />
+                    <input type="hidden" id="reportReportedId" name="reportedUserId" />
+
+                    <textarea name="reason" rows="4"
+                        class="w-full p-3 bg-red-50 rounded-lg mb-6 border-none focus:ring-2 focus:ring-red-500"
+                        placeholder="Description du problème..." required></textarea>
+
+                    <div class="flex gap-4">
+                        <button type="button" onclick="document.getElementById('reportModal').classList.add('hidden')"
+                            class="flex-1 py-3 text-gray-500 font-bold hover:bg-gray-50 rounded-lg transition">Annuler</button>
+                        <button type="submit"
+                            class="flex-1 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition shadow-lg">Signaler</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <script>
             function openReviewModal(btn) {
                 document.getElementById('modalTripId').value = btn.getAttribute('data-trip-id');
-                // We need driver ID here.
-                // Assuming I will add driverId to DTO in next step.
                 document.getElementById('modalReviewedId').value = btn.getAttribute('data-driver-id');
                 document.getElementById('reviewModal').classList.remove('hidden');
+            }
+
+            function openReportModal(btn) {
+                document.getElementById('reportTripId').value = btn.getAttribute('data-trip-id');
+                document.getElementById('reportReportedId').value = btn.getAttribute('data-reported-id');
+                document.getElementById('reportModal').classList.remove('hidden');
             }
 
             function setRating(n) {
@@ -213,6 +223,8 @@
             }
         </script>
     </div>
+</body>
+</div>
 </body>
 
 </html>

@@ -112,4 +112,11 @@ public class AdminServiceImpl implements AdminService {
     public List<com.springride.model.Reservation> getAllReservations() {
         return reservationRepository.findAll();
     }
+
+    @Override
+    public void sendWarning(Long userId, String message) {
+        User user = getUserById(userId);
+        user.setWarningMessage(message);
+        userRepository.save(user);
+    }
 }

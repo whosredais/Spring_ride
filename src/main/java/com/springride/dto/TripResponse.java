@@ -17,6 +17,7 @@ public class TripResponse {
     private Long id;
     private String departureCity;
     private String arrivalCity;
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime departureDateTime;
     private int availableSeats;
     private BigDecimal pricePerSeat;
@@ -32,5 +33,6 @@ public class TripResponse {
     // Vehicle info
     private String carModel;
     private String carColor;
+    private Long vehicleId;
     private Long driverTripsCount;
 }

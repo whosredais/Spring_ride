@@ -71,4 +71,23 @@ public class ReportController {
         redirectAttributes.addFlashAttribute("successMessage", "Signalement rejeté.");
         return "redirect:/reports/admin";
     }
+
+    @PostMapping("/{id}/warn")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String warnUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            com.springride.model.Report report = reportService.getAllReports().stream()
+                    .filter(r -> r.getId().equals(id))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Signalement non trouvé"));
+
+            userService.warnUser(report.getReportedUser().getId());
+            reportService.resolveReport(id); // Auto-resolve when warned
+
+            redirectAttributes.addFlashAttribute("successMessage", "Utilisateur averti avec succès.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur: " + e.getMessage());
+        }
+        return "redirect:/reports/admin";
+    }
 }

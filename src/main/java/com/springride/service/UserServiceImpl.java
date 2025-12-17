@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@org.springframework.transaction.annotation.Transactional
 public class UserServiceImpl implements UserService {
 
         private final UserRepository userRepository;
@@ -71,6 +72,11 @@ public class UserServiceImpl implements UserService {
                                 .estimatedRevenue(reservationRepository.calculateDriverRevenue(userId))
                                 .recentTripsPublished(myTrips)
                                 .recentReservationsRequest(myReservations)
+                                .strikes(userRepository.findById(userId)
+                                                .map(u -> u.getStrikes() != null ? u.getStrikes() : 0)
+                                                .orElse(0))
+                                .warningMessage(userRepository.findById(userId).map(User::getWarningMessage)
+                                                .orElse(null))
                                 .build();
         }
 
@@ -108,5 +114,27 @@ public class UserServiceImpl implements UserService {
                 return userRepository.findByEmail(email)
                                 .orElseThrow(() -> new ResourceNotFoundException(
                                                 "Utilisateur non trouvé avec l'email : " + email));
+        }
+
+        @Override
+        public void warnUser(Long userId) {
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+
+                // Increment strikes
+                int currentStrikes = user.getStrikes() == null ? 0 : user.getStrikes();
+                int newStrikes = currentStrikes + 1;
+                user.setStrikes(newStrikes);
+
+                // Generate automatic message
+                if (newStrikes == 1) {
+                        user.setWarningMessage(
+                                        "Attention : Vous avez reçu un premier avertissement. Tout nouvel avertissement entraînera la suspension définitive de votre compte. Ceci est votre dernière chance.");
+                } else if (newStrikes >= 2) {
+                        user.setWarningMessage("Votre compte a été suspendu suite à de multiples avertissements.");
+                        user.setActive(false);
+                }
+
+                userRepository.save(user);
         }
 }

@@ -11,4 +11,6 @@ public interface UserService {
     void updateProfile(Long userId, com.springride.dto.ProfileRequest request);
 
     com.springride.model.User getUserByEmail(String email);
+
+    void warnUser(Long userId);
 }

@@ -93,11 +93,23 @@
                                             Rejeter
                                         </button>
                                     </form>
+                                    <button onclick="openWarnModal(this)" th:data-user-id="${report.reportedUser.id}"
+                                        th:data-user-name="${report.reportedUser.firstname + ' ' + report.reportedUser.lastname}"
+                                        class="px-3 py-1 bg-red-50 text-red-600 rounded-md text-sm font-bold hover:bg-red-100 transition"
+                                        title="Envoyer un avertissement">
+                                        ⚠ Avertir
+                                    </button>
                                 </div>
-                                <span th:unless="${report.status.name() == 'PENDING'}"
-                                    class="text-xs text-gray-400 italic">
-                                    Traité
-                                </span>
+                                <div th:unless="${report.status.name() == 'PENDING'}"
+                                    class="flex items-center justify-end gap-2">
+                                    <span class="text-xs text-gray-400 italic">Traité</span>
+                                    <button onclick="openWarnModal(this)" th:data-user-id="${report.reportedUser.id}"
+                                        th:data-user-name="${report.reportedUser.firstname + ' ' + report.reportedUser.lastname}"
+                                        class="px-3 py-1 bg-red-50 text-red-600 rounded-md text-sm font-bold hover:bg-red-100 transition"
+                                        title="Envoyer un avertissement">
+                                        ⚠ Avertir
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -107,6 +119,40 @@
                 Aucun signalement trouvé.
             </div>
         </div>
+
+        <!-- Warn Modal -->
+        <div id="warnModal"
+            class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all scale-100">
+                <h3 class="text-2xl font-bold text-night mb-4">Avertir l'utilisateur</h3>
+                <p class="text-gray-500 mb-6">Envoyer un message d'avertissement à <span id="warnUserName"
+                        class="font-bold"></span>.</p>
+
+                <form id="warnForm" method="post">
+                    <textarea name="message" rows="4"
+                        class="w-full p-3 bg-gray-50 rounded-lg mb-6 border-none focus:ring-2 focus:ring-red-500"
+                        placeholder="Message d'avertissement (ex: Dernière chance avant blocage pour comportement inapproprié...)"
+                        required></textarea>
+
+                    <div class="flex gap-4">
+                        <button type="button" onclick="document.getElementById('warnModal').classList.add('hidden')"
+                            class="flex-1 py-3 text-gray-500 font-bold hover:bg-gray-50 rounded-lg transition">Annuler</button>
+                        <button type="submit"
+                            class="flex-1 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition shadow-lg">Envoyer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function openWarnModal(btn) {
+                const userId = btn.getAttribute('data-user-id');
+                const userName = btn.getAttribute('data-user-name');
+                document.getElementById('warnUserName').textContent = userName;
+                document.getElementById('warnForm').action = '/admin/users/' + userId + '/warn';
+                document.getElementById('warnModal').classList.remove('hidden');
+            }
+        </script>
     </div>
 </body>
 

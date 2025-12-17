@@ -130,7 +130,14 @@
                     document.getElementById('editDeparture').value = trip.departureCity;
                     document.getElementById('editArrival').value = trip.arrivalCity;
                     document.getElementById('editPrice').value = trip.pricePerSeat;
-                    document.getElementById('editDate').value = trip.departureDateTime; // might need formatting
+                    document.getElementById('editDate').value = trip.departureDateTime;
+
+                    // Store hidden fields
+                    document.getElementById('editTripModal').dataset.vehicleId = trip.vehicleId;
+                    document.getElementById('editTripModal').dataset.estimatedDuration = trip.estimatedDuration;
+                    document.getElementById('editTripModal').dataset.description = trip.description || "";
+                    document.getElementById('editTripModal').dataset.availableSeats = trip.availableSeats;
+
                     document.getElementById('editTripModal').classList.remove('hidden');
                 });
         }
@@ -141,22 +148,18 @@
 
         function submitEditTrip() {
             const tripId = document.getElementById('editTripId').value;
+            const modal = document.getElementById('editTripModal');
+
             const data = {
                 departureCity: document.getElementById('editDeparture').value,
                 arrivalCity: document.getElementById('editArrival').value,
                 departureDateTime: document.getElementById('editDate').value,
                 pricePerSeat: document.getElementById('editPrice').value,
-                // We must send ALL validated fields required by DTO, skipping some for brevity might error if @NotNull
-                // Assuming simple update for now, ideally we read all fields.
-                // For this fixes, user asked to "Fix buttons".
-                // I will add dummy values for others so it doesn't fail validation if required.
-                availableSeats: 3, // existing value ideally
-                estimatedDuration: 60, // existing value ideally
-                description: "Updated description" // existing value ideally
+                vehicleId: modal.dataset.vehicleId, // Required
+                estimatedDuration: modal.dataset.estimatedDuration || 60, // Required
+                description: modal.dataset.description || "", // Optional but good to keep
+                availableSeats: modal.dataset.availableSeats || 1 // Required
             };
-
-            // To do this properly, openEditModal should populate ALL fields, and we send them back.
-            // Simplified for this task to demonstrate "Modify" working.
 
             fetch('/api/trips/' + tripId, {
                 method: 'PUT',
@@ -170,7 +173,8 @@
                     } else {
                         response.json().then(err => alert('Erreur: ' + (err.message || 'Validation failed')));
                     }
-                });
+                })
+                .catch(err => alert('Erreur réseau: ' + err));
         }
     </script>
 </body>

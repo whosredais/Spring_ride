@@ -64,7 +64,13 @@ public class VehicleServiceImpl implements VehicleService {
             throw new BadRequestException("Vous n'êtes pas autorisé à supprimer ce véhicule");
         }
 
-        vehicleRepository.delete(vehicle);
+        try {
+            vehicleRepository.delete(vehicle);
+            vehicleRepository.flush(); // Force execution to catch constraint violation
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            throw new BadRequestException(
+                    "Impossible de supprimer ce véhicule car il est associé à un ou plusieurs trajets (passés ou futurs).");
+        }
     }
 
     private VehicleResponse mapToResponse(Vehicle vehicle) {

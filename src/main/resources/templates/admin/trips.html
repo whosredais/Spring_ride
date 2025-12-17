@@ -69,7 +69,7 @@
                                     th:text="${trip.driver.firstname + ' ' + trip.driver.lastname}"></div>
                                 <div class="text-xs text-gray-500" th:text="${trip.driver.email}"></div>
                             </td>
-                            <td class="p-4 font-bold text-emerald-600" th:text="${trip.pricePerSeat + ' TND'}"></td>
+                            <td class="p-4 font-bold text-emerald-600" th:text="${trip.pricePerSeat + ' Dhs'}"></td>
                             <td class="p-4 text-right">
                                 <form th:action="@{/admin/trips/{id}/delete(id=${trip.id})}" method="post"
                                     onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce trajet ?');">

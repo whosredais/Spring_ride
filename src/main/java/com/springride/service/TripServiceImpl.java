@@ -159,6 +159,7 @@ public class TripServiceImpl implements TripService {
                 .driverRating(trip.getDriver().getAverageRating())
                 .carModel(trip.getVehicle().getBrand() + " " + trip.getVehicle().getModel())
                 .carColor(trip.getVehicle().getColor())
+                .vehicleId(trip.getVehicle().getId())
                 .driverTripsCount(tripRepository.countTripsWithReservations(trip.getDriver().getId()))
                 .build();
     }

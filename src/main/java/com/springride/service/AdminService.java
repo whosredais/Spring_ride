@@ -33,5 +33,8 @@ public interface AdminService {
     void deleteTrip(Long id);
 
     // Reservation Management (for stats)
+    // Reservation Management (for stats)
     List<com.springride.model.Reservation> getAllReservations();
+
+    void sendWarning(Long userId, String message);
 }

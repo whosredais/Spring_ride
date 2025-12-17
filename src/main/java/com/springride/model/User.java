@@ -60,6 +60,11 @@ public class User implements UserDetails {
     @Builder.Default
     private boolean accountVerified = false;
 
+    @Builder.Default
+    private Integer strikes = 0;
+
+    private String warningMessage; // Message d'avertissement de l'admin
+
     // === Méthodes obligatoires pour Spring Security ===
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

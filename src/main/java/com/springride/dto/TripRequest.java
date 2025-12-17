@@ -26,6 +26,7 @@ public class TripRequest {
 
     @NotNull(message = "Date de départ obligatoire")
     @Future(message = "La date doit être dans le futur")
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime departureDateTime;
 
     @Min(value = 1, message = "Au moins 1 place")
