@@ -30,16 +30,26 @@ public class DataInitializer implements CommandLineRunner { // → run() s’ex�
                     .phone("0600000000")
                     .roles(Set.of(Role.ADMIN, Role.CONDUCTEUR, Role.PASSAGER))
                     .active(true)
+                    .accountVerified(true)
                     .build();
             userRepository.save(admin);
             System.out.println("ADMIN créé → email: admin@springride.com | mot de passe: admin123");
         } else {
             // Ensure it is active if it exists
             userRepository.findByEmail("admin@springride.com").ifPresent(admin -> {
+                boolean changed = false;
                 if (!admin.isActive()) {
                     admin.setActive(true);
-                    userRepository.save(admin);
+                    changed = true;
                     System.out.println("Compte ADMIN (springride) réactivé.");
+                }
+                if (!admin.isAccountVerified()) {
+                    admin.setAccountVerified(true);
+                    changed = true;
+                    System.out.println("Compte ADMIN (springride) vérifié.");
+                }
+                if (changed) {
+                    userRepository.save(admin);
                 }
             });
         }
