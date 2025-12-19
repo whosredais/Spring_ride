@@ -108,36 +108,43 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
     @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
     @Builder.Default
     private Set<Trip> trips = new HashSet<>();
 
     @OneToMany(mappedBy = "passenger", cascade = CascadeType.ALL, orphanRemoval = true)
     @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
     @Builder.Default
     private Set<Reservation> reservations = new HashSet<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
     @Builder.Default
     private Set<Vehicle> vehicles = new HashSet<>();
 
     @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL, orphanRemoval = true)
     @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
     @Builder.Default
     private Set<Report> sentReports = new HashSet<>();
 
     @OneToMany(mappedBy = "reportedUser", cascade = CascadeType.ALL, orphanRemoval = true)
     @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
     @Builder.Default
     private Set<Report> receivedReports = new HashSet<>();
 
-    @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "reviewer")
     @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
     @Builder.Default
     private Set<Review> writtenReviews = new HashSet<>();
 
-    @OneToMany(mappedBy = "reviewed", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "reviewed")
     @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
     @Builder.Default
     private Set<Review> receivedReviews = new HashSet<>();
 }

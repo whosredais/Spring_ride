@@ -1,15 +1,11 @@
 package com.springride.service;
 
-import com.springride.dto.LoginRequest;
 import com.springride.dto.RegisterRequest;
 import com.springride.model.User;
 import com.springride.model.enums.Role;
 import com.springride.repository.UserRepository;
-import com.springride.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Set;
@@ -21,11 +17,13 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
     private final OtpService otpService;
 
-    public String register(RegisterRequest request) {
+    public void register(RegisterRequest request) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new com.springride.exception.BadRequestException("Cet email est déjà utilisé.");
+        }
+
         User user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
@@ -33,40 +31,18 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phone(request.getPhone())
                 .roles(Set.of(Role.PASSAGER, Role.CONDUCTEUR))
-                .accountVerified(false) // Explicitly set to false
+                .accountVerified(false)
                 .build();
         userRepository.save(user);
 
         // Generate and send OTP
         otpService.generateAndSendOtp(user, com.springride.model.enums.OtpPurpose.ACCOUNT_VERIFICATION);
-
-        // We return a token, but the user won't be able to use it effectively if we
-        // enforce isEnabled check on specific endpoints
-        // OR the frontend should handle the "Account created, please verify" state.
-        // Actually, common pattern: don't return token yet, or return it but IsEnabled
-        // prevents login.
-        // Here we return String to match existing signature, but maybe return
-        // "Registration successful. Please verify email."
-        // logic is handled by controller generally.
-        // For backward compatibility with existing code flow, we return token, but
-        // since isEnabled() is false,
-        // subsequent requests might fail if they check user status.
-        // HOWEVER, `login` checks authenticationManager which checks `isEnabled`.
-        return jwtService.generateToken(user);
     }
 
-    public String login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-
-        // At this point, authenticationManager has already checked isEnabled() via
-        // UserDetails.
-        // So if accountVerified is false, authentication throws DisabledException or
-        // similar.
-
-        User user = userRepository.findByEmail(request.getUsername()).orElseThrow();
-        return jwtService.generateToken(user);
-    }
+    // Login is handled by Spring Security (formLogin), so we don't strictly need a
+    // login method here
+    // unless we want to do some extra checks. For now, we removed the manual JWT
+    // generation.
 
     public void verifyAccount(String email, String code) {
         User user = userRepository.findByEmail(email)
@@ -111,8 +87,12 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new com.springride.exception.BadRequestException("Utilisateur non trouvé"));
 
+        // We re-validate here to be safe, although one could argue we just need the
+        // code to match what was sent.
         if (otpService.validateOtp(user, code, com.springride.model.enums.OtpPurpose.PASSWORD_RESET)) {
             user.setPassword(passwordEncoder.encode(newPassword));
+            // Ensure account is verified if they reset password successfully (implies they
+            // own the email)
             user.setAccountVerified(true);
             userRepository.save(user);
         } else {

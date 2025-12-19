@@ -22,19 +22,19 @@
                 Vous avez été déconnecté.
             </div>
 
-            <form class="mt-8 space-y-6" th:action="@{/login}" method="post" th:object="${loginRequest}">
+            <form class="mt-8 space-y-6" th:action="@{/login}" method="post">
                 <div class="rounded-md shadow-sm -space-y-px">
                     <div>
                         <label for="username" class="sr-only">Email</label>
                         <input id="username" name="username" type="email" required
                             class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-lg focus:outline-none focus:ring-spring focus:border-spring focus:z-10 sm:text-sm"
-                            placeholder="Email" th:field="*{username}">
+                            placeholder="Email">
                     </div>
                     <div>
                         <label for="password" class="sr-only">Mot de passe</label>
                         <input id="password" name="password" type="password" required
                             class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-lg focus:outline-none focus:ring-spring focus:border-spring focus:z-10 sm:text-sm"
-                            placeholder="Mot de passe" th:field="*{password}">
+                            placeholder="Mot de passe">
                         <div class="text-right mt-2">
                             <a href="/forgot-password" class="text-sm text-spring hover:underline">Mot de passe oublié
                                 ?</a>

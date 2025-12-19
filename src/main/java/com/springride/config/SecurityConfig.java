@@ -1,6 +1,5 @@
 package com.springride.config;
 
-import com.springride.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @RequiredArgsConstructor
@@ -25,14 +23,13 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
-                                .csrf(csrf -> csrf.disable()) // Désactivé pour simplifier le dev, à activer en prod
+                                // .csrf(csrf -> csrf.disable()) // Re-activé pour la prod
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/", "/login", "/register", "/css/**",
-                                                                "/js/**", "/images/**",
-                                                                "/error", "/h2-console/**",
-                                                                "/api/auth/**",
+                                                                "/js/**", "/images/**", "/uploads/**",
+                                                                "/error",
                                                                 "/verify-account", "/forgot-password",
-                                                                "/reset-password")
+                                                                "/reset-password", "/resend-otp")
                                                 .permitAll()
                                                 .anyRequest().authenticated())
                                 .formLogin(form -> form
@@ -41,15 +38,13 @@ public class SecurityConfig {
                                                 .permitAll())
                                 .logout(logout -> logout
                                                 .logoutSuccessUrl("/")
-                                                .permitAll());
-
-                // Pour H2 console
-                http.headers(headers -> headers
-                                .frameOptions(frame -> frame.disable()));
-
-                // NB: On garde jwtAuthFilter si on veut supporter l'API aussi, mais ici pour
-                // thymeleaf on priorise formLogin.
-                // On ne l'ajoute pas ici pour éviter les conflits de session.
+                                                .invalidateHttpSession(true)
+                                                .deleteCookies("JSESSIONID")
+                                                .permitAll())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                                                .maximumSessions(1)
+                                                .expiredUrl("/login?expired"));
 
                 return http.build();
         }
