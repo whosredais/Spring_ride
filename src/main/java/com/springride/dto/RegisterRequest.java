@@ -25,5 +25,6 @@ public class RegisterRequest {
         @NotBlank(message = "Le mot de passe est requis")
         private String password;
 
+        @NotBlank(message = "Le téléphone est requis")
         private String phone;
 }

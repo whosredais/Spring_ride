@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class TripServiceImpl implements TripService {
 
     private final TripRepository tripRepository;
     private final VehicleRepository vehicleRepository;
 
     @Override
-    @Transactional
     public TripResponse createTrip(TripRequest request, User driver) {
         if (request.getDepartureDateTime().isBefore(LocalDateTime.now())) {
             throw new BadRequestException("La date du trajet doit être dans le futur");
@@ -78,7 +78,6 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    @Transactional
     public void cancelTrip(Long tripId, Long driverId) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trajet non trouvé"));
@@ -100,7 +99,6 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    @Transactional
     public TripResponse updateTrip(Long tripId, TripRequest request, Long driverId) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trajet non trouvé"));
@@ -144,6 +142,8 @@ public class TripServiceImpl implements TripService {
     }
 
     private TripResponse mapToResponse(Trip trip) {
+        System.out.println("DEBUG: Mapping Trip ID=" + trip.getId() + ", Driver=" + trip.getDriver().getEmail()
+                + ", Name=" + trip.getDriver().getFirstname());
         return TripResponse.builder()
                 .id(trip.getId())
                 .departureCity(trip.getDepartureCity())
@@ -161,6 +161,19 @@ public class TripServiceImpl implements TripService {
                 .carColor(trip.getVehicle().getColor())
                 .vehicleId(trip.getVehicle().getId())
                 .driverTripsCount(tripRepository.countTripsWithReservations(trip.getDriver().getId()))
+                .reservations(trip.getReservations() != null ? trip.getReservations().stream()
+                        .map(res -> com.springride.dto.ReservationResponse.builder()
+                                .id(res.getId())
+                                .seatsRequested(res.getSeatsRequested())
+                                .requestedAt(res.getRequestedAt())
+                                .status(res.getStatus())
+                                .passengerId(res.getPassenger().getId())
+                                .passengerName(
+                                        res.getPassenger().getFirstname() + " " + res.getPassenger().getLastname())
+                                .passengerEmail(res.getPassenger().getEmail())
+                                .passengerPhone(res.getPassenger().getPhone())
+                                .build())
+                        .collect(Collectors.toList()) : null)
                 .build();
     }
 }

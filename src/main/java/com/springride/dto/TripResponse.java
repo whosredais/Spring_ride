@@ -1,5 +1,6 @@
 package com.springride.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.springride.model.enums.TripStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +18,7 @@ public class TripResponse {
     private Long id;
     private String departureCity;
     private String arrivalCity;
-    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime departureDateTime;
     private int availableSeats;
     private BigDecimal pricePerSeat;
@@ -35,4 +36,6 @@ public class TripResponse {
     private String carColor;
     private Long vehicleId;
     private Long driverTripsCount;
+
+    private java.util.List<ReservationResponse> reservations;
 }

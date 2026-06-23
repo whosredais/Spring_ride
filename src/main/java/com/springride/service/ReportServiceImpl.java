@@ -1,4 +1,4 @@
-package com.springride.service.impl;
+package com.springride.service;
 
 import com.springride.model.Report;
 import com.springride.model.User;

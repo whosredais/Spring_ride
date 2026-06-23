@@ -11,39 +11,84 @@
         <h1 class="text-3xl font-bold text-night mb-8">Gérer mes trajets</h1>
 
         <!-- Messages -->
-        <div id="alert-container"></div>
+        <div th:if="${success}"
+            class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            <span th:text="${error}"></span>
+        </div>
 
         <div class="grid grid-cols-1 gap-6">
             <div th:each="trip : ${trips}" th:id="'trip-card-' + ${trip.id}"
-                class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
-                <div>
-                    <h3 class="text-xl font-bold text-night"
-                        th:text="${trip.departureCity} + ' → ' + ${trip.arrivalCity}">Casablanca → Rabat</h3>
-                    <p class="text-gray-500"
-                        th:text="${#temporals.format(trip.departureDateTime, 'dd MMMM yyyy à HH:mm')}">14 Janvier 2025
-                    </p>
-                    <div class="mt-2 flex gap-2">
-                        <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md"
-                            th:text="${trip.availableSeats} + ' places restantes'">3 places restantes</span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-md font-bold"
-                            th:text="${trip.pricePerSeat} + ' DH'">25 DH</span>
-                        <span
-                            th:class="${'px-2 py-1 text-xs rounded-md font-bold ' + 
-                            (trip.status.name() == 'PLANIFIE' ? 'bg-green-100 text-green-700' : 
-                             (trip.status.name() == 'ANNULE' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'))}"
-                            th:text="${trip.status}">PLANIFIE</span>
+                class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-4">
+
+                <!-- Top Row: Info and Actions -->
+                <div class="flex justify-between items-start">
+                    <!-- Trip Info -->
+                    <div>
+                        <h3 class="text-xl font-bold text-night"
+                            th:text="${trip.departureCity} + ' → ' + ${trip.arrivalCity}">Casablanca → Rabat</h3>
+                        <p class="text-gray-500"
+                            th:text="${#temporals.format(trip.departureDateTime, 'dd MMMM yyyy à HH:mm')}">14 Janvier
+                            2025
+                        </p>
+                        <div class="mt-2 flex gap-2">
+                            <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md"
+                                th:text="${trip.availableSeats} + ' places restantes'">3 places restantes</span>
+                            <span class="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-md font-bold"
+                                th:text="${trip.pricePerSeat} + ' DH'">25 DH</span>
+                            <span
+                                th:class="${'px-2 py-1 text-xs rounded-md font-bold ' + 
+                                (trip.status.name() == 'PLANIFIE' ? 'bg-green-100 text-green-700' : 
+                                 (trip.status.name() == 'ANNULE' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'))}"
+                                th:text="${trip.status}">PLANIFIE</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-3" th:if="${trip.status.name() != 'ANNULE'}">
+                        <a th:href="@{/driver/trips/{id}/edit(id=${trip.id})}"
+                            class="text-gray-400 hover:text-spring transition font-semibold">
+                            Modifier
+                        </a>
+
+                        <form th:action="@{/driver/trips/{id}/cancel(id=${trip.id})}" method="post"
+                            onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce trajet ?')">
+                            <button type="submit" class="text-red-400 hover:text-red-600 transition font-semibold">
+                                Annuler
+                            </button>
+                        </form>
                     </div>
                 </div>
-                <!-- Logic to hide actions if cancelled -->
-                <div class="flex gap-3" th:if="${trip.status.name() != 'ANNULE'}">
-                    <button th:onclick="'openEditModal(' + ${trip.id} + ')'"
-                        class="text-gray-400 hover:text-spring transition font-semibold">
-                        Modifier
-                    </button>
-                    <button th:onclick="'cancelTrip(' + ${trip.id} + ')'"
-                        class="text-red-400 hover:text-red-600 transition font-semibold">
-                        Annuler
-                    </button>
+
+                <!-- Passenger List Section -->
+                <div class="pt-4 border-t border-gray-100" th:if="${!trip.reservations.isEmpty()}">
+                    <h4 class="font-bold text-sm text-gray-700 mb-3">Passagers réservés</h4>
+                    <div class="space-y-3">
+                        <th:block th:each="res : ${trip.reservations}">
+                            <div th:if="${res.status.name() != 'ANNULE' and res.status.name() != 'REFUSE'}"
+                                class="flex justify-between items-start bg-gray-50 p-3 rounded-lg text-sm">
+                                <div>
+                                    <div class="font-semibold text-night" th:text="${res.passengerName}">Jean Dupont
+                                    </div>
+                                    <div class="text-gray-500 text-xs mt-0.5" th:text="${res.passengerEmail}">
+                                        jean@example.com</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-bold text-spring" th:text="${res.passengerPhone}">06 12 34 56 78
+                                    </div>
+                                    <div class="text-gray-400 text-xs mt-0.5"
+                                        th:text="${res.seatsRequested + ' place(s)'}">1 place(s)</div>
+                                </div>
+                            </div>
+                        </th:block>
+                        <!-- Show message if all reservations are cancelled -->
+                        <div th:if="${trip.reservations.?[status.name() != 'ANNULE' and status.name() != 'REFUSE'].isEmpty()}"
+                            class="text-gray-400 text-xs italic">
+                            Aucune réservation active.
+                        </div>
+                    </div>
                 </div>
             </div>
             <div th:if="${#lists.isEmpty(trips)}" class="text-center py-12 bg-white rounded-xl">
@@ -53,130 +98,7 @@
         </div>
     </div>
 
-    <!-- Edit Modal -->
-    <div id="editTripModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden"
-        layout:fragment="modal">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div class="mt-3 text-center">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Modifier le trajet</h3>
-                <form id="editTripForm" class="mt-2 text-left">
-                    <input type="hidden" id="editTripId">
-
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Ville de départ</label>
-                        <input type="text" id="editDeparture"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Ville d'arrivée</label>
-                        <input type="text" id="editArrival"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Date et Heure</label>
-                        <input type="datetime-local" id="editDate"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Prix (DH)</label>
-                        <input type="number" id="editPrice"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <!-- Add more fields as needed (seats, description) -->
-
-                    <div class="items-center px-4 py-3">
-                        <button type="button" onclick="submitEditTrip()"
-                            class="px-4 py-2 bg-spring text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300">
-                            Enregistrer
-                        </button>
-                        <button type="button" onclick="closeEditModal()"
-                            class="mt-3 px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300">
-                            Annuler
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script layout:fragment="script">
-        function cancelTrip(tripId) {
-            if (!confirm('Êtes-vous sûr de vouloir annuler ce trajet ?')) return;
-
-            fetch('/api/trips/' + tripId + '/cancel', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(response => {
-                    if (response.ok) {
-                        alert('Trajet annulé avec succès');
-                        location.reload();
-                    } else {
-                        response.text().then(text => alert('Erreur: ' + text));
-                    }
-                })
-                .catch(err => console.error(err));
-        }
-
-        function openEditModal(tripId) {
-            // Fetch trip details to populate form
-            fetch('/api/trips/' + tripId)
-                .then(res => res.json())
-                .then(trip => {
-                    document.getElementById('editTripId').value = trip.id;
-                    document.getElementById('editDeparture').value = trip.departureCity;
-                    document.getElementById('editArrival').value = trip.arrivalCity;
-                    document.getElementById('editPrice').value = trip.pricePerSeat;
-                    document.getElementById('editDate').value = trip.departureDateTime;
-
-                    // Store hidden fields
-                    document.getElementById('editTripModal').dataset.vehicleId = trip.vehicleId;
-                    document.getElementById('editTripModal').dataset.estimatedDuration = trip.estimatedDuration;
-                    document.getElementById('editTripModal').dataset.description = trip.description || "";
-                    document.getElementById('editTripModal').dataset.availableSeats = trip.availableSeats;
-
-                    document.getElementById('editTripModal').classList.remove('hidden');
-                });
-        }
-
-        function closeEditModal() {
-            document.getElementById('editTripModal').classList.add('hidden');
-        }
-
-        function submitEditTrip() {
-            const tripId = document.getElementById('editTripId').value;
-            const modal = document.getElementById('editTripModal');
-
-            const data = {
-                departureCity: document.getElementById('editDeparture').value,
-                arrivalCity: document.getElementById('editArrival').value,
-                departureDateTime: document.getElementById('editDate').value,
-                pricePerSeat: document.getElementById('editPrice').value,
-                vehicleId: modal.dataset.vehicleId, // Required
-                estimatedDuration: modal.dataset.estimatedDuration || 60, // Required
-                description: modal.dataset.description || "", // Optional but good to keep
-                availableSeats: modal.dataset.availableSeats || 1 // Required
-            };
-
-            fetch('/api/trips/' + tripId, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-                .then(response => {
-                    if (response.ok) {
-                        alert('Trajet modifié avec succès');
-                        location.reload();
-                    } else {
-                        response.json().then(err => alert('Erreur: ' + (err.message || 'Validation failed')));
-                    }
-                })
-                .catch(err => alert('Erreur réseau: ' + err));
-        }
-    </script>
+    <!-- No more modals or scripts needed -->
 </body>
 
 </html>

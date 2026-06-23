@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import com.springride.model.enums.TripStatus;
 
@@ -57,9 +60,9 @@ public class Trip {
     private Vehicle vehicle;
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private java.util.List<Reservation> reservations;
+    private List<Reservation> reservations;
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private java.util.Set<Review> reviews = java.util.HashSet.newHashSet(0);
+    private Set<Review> reviews = new HashSet<>();
 }

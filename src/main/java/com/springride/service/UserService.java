@@ -2,15 +2,17 @@ package com.springride.service;
 
 import com.springride.dto.DashboardResponse;
 import com.springride.dto.UserResponse;
+import com.springride.model.User;
+import com.springride.dto.ProfileRequest;
 
 public interface UserService {
     UserResponse getUserProfile(Long userId);
 
     DashboardResponse getUserDashboard(Long userId);
 
-    void updateProfile(Long userId, com.springride.dto.ProfileRequest request);
+    void updateProfile(Long userId, ProfileRequest request);
 
-    com.springride.model.User getUserByEmail(String email);
+    User getUserByEmail(String email);
 
     void warnUser(Long userId);
 }

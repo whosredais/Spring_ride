@@ -13,8 +13,8 @@ import java.util.List;
 public interface TripRepository extends JpaRepository<Trip, Long> {
 
         @Query("SELECT t FROM Trip t WHERE " +
-                        "(:departure IS NULL OR LOWER(t.departureCity) LIKE LOWER(CONCAT('%', :departure, '%'))) AND " +
-                        "(:arrival IS NULL OR LOWER(t.arrivalCity) LIKE LOWER(CONCAT('%', :arrival, '%'))) AND " +
+                        "(:departure IS NULL OR t.departureCity = :departure) AND " +
+                        "(:arrival IS NULL OR t.arrivalCity = :arrival) AND " +
                         "t.departureDateTime > :now AND " +
                         "t.status = 'PLANIFIE' AND " +
                         "t.availableSeats > 0 AND " +

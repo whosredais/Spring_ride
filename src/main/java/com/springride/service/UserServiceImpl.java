@@ -8,13 +8,18 @@ import com.springride.repository.TripRepository;
 import com.springride.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@org.springframework.transaction.annotation.Transactional
+@Transactional
 public class UserServiceImpl implements UserService {
 
         private final UserRepository userRepository;
@@ -93,15 +98,15 @@ public class UserServiceImpl implements UserService {
                         try {
                                 String fileName = System.currentTimeMillis() + "_"
                                                 + request.getProfilePicture().getOriginalFilename();
-                                java.nio.file.Path uploadPath = java.nio.file.Paths.get("uploads");
-                                if (!java.nio.file.Files.exists(uploadPath)) {
-                                        java.nio.file.Files.createDirectories(uploadPath);
+                                Path uploadPath = Paths.get("uploads");
+                                if (!Files.exists(uploadPath)) {
+                                        Files.createDirectories(uploadPath);
                                 }
-                                java.nio.file.Files.copy(request.getProfilePicture().getInputStream(),
+                                Files.copy(request.getProfilePicture().getInputStream(),
                                                 uploadPath.resolve(fileName),
-                                                java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                                                StandardCopyOption.REPLACE_EXISTING);
                                 user.setProfilePicture(fileName);
-                        } catch (java.io.IOException e) {
+                        } catch (IOException e) {
                                 throw new RuntimeException("Erreur lors de l'upload de l'image", e);
                         }
                 }

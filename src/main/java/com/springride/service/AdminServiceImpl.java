@@ -1,4 +1,4 @@
-package com.springride.service.impl;
+package com.springride.service;
 
 import com.springride.model.Report;
 import com.springride.model.Trip;
@@ -95,6 +95,23 @@ public class AdminServiceImpl implements AdminService {
         Report report = getReportById(id);
         report.setStatus(status);
         reportRepository.save(report);
+
+        // Automating warning message if report is accepted (RESOLVED)
+        if (status == Report.ReportStatus.RESOLVED) {
+            User reportedUser = report.getReportedUser();
+            int currentStrikes = reportedUser.getStrikes() == null ? 0 : reportedUser.getStrikes();
+            int newStrikes = currentStrikes + 1;
+            reportedUser.setStrikes(newStrikes);
+
+            if (newStrikes == 1) {
+                reportedUser.setWarningMessage(
+                        "Attention : Vous avez reçu un premier avertissement. Tout nouvel avertissement entraînera la suspension définitive de votre compte.");
+            } else if (newStrikes >= 2) {
+                reportedUser.setWarningMessage("Votre compte a été suspendu suite à de multiples avertissements.");
+                reportedUser.setActive(false);
+            }
+            userRepository.save(reportedUser);
+        }
     }
 
     // Trip Management

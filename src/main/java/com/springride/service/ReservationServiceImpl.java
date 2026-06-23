@@ -13,7 +13,7 @@ import com.springride.repository.TripRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.springride.model.enums.TripStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,10 +44,10 @@ public class ReservationServiceImpl implements ReservationService {
             throw new BadRequestException("Ce trajet est déjà passé");
         }
 
-        if (trip.getStatus() == com.springride.model.enums.TripStatus.ANNULE
-                || trip.getStatus() == com.springride.model.enums.TripStatus.EXPIRE
-                || trip.getStatus() == com.springride.model.enums.TripStatus.TERMINEE
-                || trip.getStatus() == com.springride.model.enums.TripStatus.COMPLET) {
+        if (trip.getStatus() == TripStatus.ANNULE
+                || trip.getStatus() == TripStatus.EXPIRE
+                || trip.getStatus() == TripStatus.TERMINEE
+                || trip.getStatus() == TripStatus.COMPLET) {
             throw new BadRequestException("Ce trajet n'est plus disponible à la réservation");
         }
 

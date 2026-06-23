@@ -67,7 +67,6 @@
                         <th class="p-4 text-xs font-bold text-gray-500 uppercase">Trajet</th>
                         <th class="p-4 text-xs font-bold text-gray-500 uppercase">Date</th>
                         <th class="p-4 text-xs font-bold text-gray-500 uppercase">Statut</th>
-                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Action</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -82,12 +81,9 @@
                             <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-bold"
                                 th:text="${trip.status}">ACTIVE</span>
                         </td>
-                        <td class="p-4">
-                            <a href="#" class="text-spring font-medium hover:underline">Gérer</a>
-                        </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(dashboard.recentTripsPublished)}">
-                        <td colspan="4" class="p-8 text-center text-gray-400">Aucun trajet récent.</td>
+                        <td colspan="3" class="p-8 text-center text-gray-400">Aucun trajet récent.</td>
                     </tr>
                 </tbody>
             </table>
