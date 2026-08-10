@@ -1,43 +1,68 @@
-# Spring Ride Connect
+# 🚗 Spring Ride Connect
 
-Plateforme de covoiturage type BlaBlaCar.
+> **Spring Ride Connect** est une plateforme de covoiturage intuitive, similaire à BlaBlaCar, permettant aux utilisateurs de proposer des trajets ou de réserver des places en tant que passagers.
 
-## Prérequis
+---
 
-- Java 21
-- Maven
-- MySQL / H2
+## ✨ Fonctionnalités Principales
 
-## Lancement du projet
+- **Mode Passager :** Recherche et réservation de trajets.
+- **Mode Conducteur :** Publication de trajets et gestion des réservations.
+- **Gestion des Véhicules :** Les conducteurs peuvent ajouter et gérer leurs véhicules.
+- **Authentification :** Inscription, connexion sécurisée et gestion de profil.
 
-Pour compiler et lancer le projet en local :
+---
+
+## 📸 Aperçu de l'Application
+
+### 🏠 Page d'Accueil
+![Page d'Accueil](docs/images/accueil.png)
+
+### 🔐 Connexion & Inscription
+| Connexion | Inscription |
+| :---: | :---: |
+| ![Connexion](docs/images/connexion.png) | ![Inscription](docs/images/inscription.png) |
+
+### 🚗 Mode Conducteur & Passager
+| Mode Conducteur | Mode Passager |
+| :---: | :---: |
+| ![Mode Conducteur](docs/images/mode_conducteur.png) | ![Mode Passager](docs/images/mode_passager.png) |
+
+### ➕ Ajouter un Véhicule
+![Ajouter un Véhicule](docs/images/ajouter_vehicule.png)
+
+---
+
+## 🛠️ Technologies Utilisées
+
+- **Backend :** Java 21, Spring Boot, Spring Data JPA, Spring Security
+- **Frontend :** Thymeleaf, HTML5, CSS3, Bootstrap (ou similaire)
+- **Base de Données :** MySQL / H2
+- **Outil de Build :** Maven
+
+---
+
+## 🚀 Lancement du Projet (Local)
+
+### 1. Prérequis
+- Avoir **Java 21** installé.
+- Avoir un serveur **MySQL** en cours d'exécution avec une base de données nommée `springride_db`.
+
+### 2. Exécution
+
+Ouvrez un terminal à la racine du projet et lancez la commande suivante :
 
 ```bash
+# Sur Windows
+.\mvnw.cmd spring-boot:run
+
+# Sur Mac/Linux
 ./mvnw spring-boot:run
 ```
 
-## Pousser le projet sur GitHub
+L'application sera accessible sur `http://localhost:8081`.
 
-1. Créez un nouveau dépôt sur GitHub (sans initialiser de README ou de .gitignore).
-2. Ouvrez un terminal à la racine de ce projet (`c:\Users\REDA\Desktop\My Projects\springride_VF`).
-3. Exécutez les commandes suivantes :
+---
 
-```bash
-# Initialiser le dépôt Git local (s'il n'est pas déjà initialisé)
-git init
-
-# Ajouter tous les fichiers au suivi (le .gitignore exclura les dossiers comme target/ et uploads/)
-git add .
-
-# Créer un premier commit
-git commit -m "Initial commit"
-
-# Renommer la branche principale en 'main'
-git branch -M main
-
-# Lier votre dépôt local au dépôt distant (remplacez l'URL par celle de votre dépôt)
-git remote add origin https://github.com/<votre-nom-utilisateur>/<nom-du-repo>.git
-
-# Pousser le code vers GitHub
-git push -u origin main
-```
+## 👨‍💻 Auteur
+**Reda** - [whosredais](https://github.com/whosredais)
